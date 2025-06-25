@@ -1,21 +1,22 @@
-
 const express = require("express");
 const router = express.Router();
-const { createProduct, getAllProducts } = require("../controllers/productController");
 
-const verifyToken = require("../middleware/auth");
+const {
+  createProduct,
+  getAllProducts,
+  getProductById,
+  updateProduct,
+  deleteProduct
+} = require("../controllers/productController");
 
-//Admin only route to add product
-router.post("/add", verifyToken, async (req, res,next) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ msg: "Access denied:Admins Only" });
-  }
-  next();
+const { verifyToken, isAdmin } = require("../middleware/auth");
 
-  // Continue to add product
-},createProduct);
+router.post("/add", verifyToken, isAdmin, createProduct);
+router.put("/:id", verifyToken, isAdmin, updateProduct);
 
-// Public route to get all products
 router.get("/all", getAllProducts);
+router.get("/:id", getProductById);
+router.delete("/:id", verifyToken, isAdmin, deleteProduct);
+
 
 module.exports = router;

@@ -19,4 +19,17 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-module.exports = verifyToken;
+// ✅ Add this to check if user is admin
+const isAdmin = (req, res, next) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ msg: "Access denied: Admins only" });
+  }
+  next();
+};
+
+// ✅ Export both middlewares
+module.exports = {
+  verifyToken,
+  isAdmin
+};
+
