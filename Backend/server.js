@@ -45,6 +45,10 @@ app.use('/api/customizations', customizationRoutes);
 const orderRoutes = require("./routes/orderRoutes");
 app.use("/api/orders", orderRoutes);
 
+const reviewRoutes = require("./routes/reviewRoutes");
+app.use("/api", reviewRoutes);
+
+
 app.get("/", (req, res) => res.send("API is running"));
 
 const PORT = process.env.PORT || 5000;
