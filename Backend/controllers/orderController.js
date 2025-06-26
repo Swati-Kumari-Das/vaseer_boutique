@@ -1,5 +1,6 @@
 
 const Order = require("../models/Order");
+const sendEmail = require("../utils/sendEmail");
 
 exports.placeOrder = async (req, res) => {
   try {
@@ -56,6 +57,8 @@ exports.getMyOrders = async (req, res) => {
 };
 
 // Admin: Update order status
+
+
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -64,12 +67,22 @@ exports.updateOrderStatus = async (req, res) => {
       req.params.id,
       { orderStatus: status },
       { new: true }
-    );
+    ).populate("buyerId", "email name");
 
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    // ✅ Send email only when confirmed
+    if (status === "confirmed") {
+      await sendEmail({
+        to: order.buyerId.email,
+        subject: "Order Confirmed ✔️",
+        text: `Dear ${order.buyerId.name},\n\nYour order has been confirmed!\n\nThank you for shopping with Vaseer Boutique.\n\nRegards,\nVaseer Team`,
+      });
+    }
 
     res.json({ success: true, order });
   } catch (err) {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+

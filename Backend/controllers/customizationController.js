@@ -1,5 +1,7 @@
 // controllers/customizationController.js
 const Customization = require("../models/Customization");
+const Order = require("../models/Order");
+const Product = require("../models/Product");
 
 exports.createCustomization = async (req, res) => {
     try {
@@ -51,14 +53,37 @@ exports.getUserCustomizations = async (req, res) => {
   exports.updateCustomizationStatus = async (req, res) => {
     try {
       const { status } = req.body;
-      const updated = await Customization.findByIdAndUpdate(req.params.id, { status }, { new: true });
+      const customization = await Customization.findById(req.params.id);
   
-      if (!updated) {
+      if (!customization) {
         return res.status(404).json({ success: false, message: "Customization not found" });
       }
   
-      res.json({ success: true, updated });
-    } catch (err) {
+      customization.status = status;
+      await customization.save();
+  
+      // ✅ Auto-place order if approved
+      if (status === "approved") {
+        const product = await Product.findById(customization.productId);
+        if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+  
+        const order = new Order({
+          buyerId: customization.buyerId,
+          productId: customization.productId,
+          quantity: 1,
+          totalAmount: product.price,
+          shippingAddress: "To be collected later or confirmed by user", // placeholder
+          contactPhone: customization.phone,
+          customizationId: customization._id,
+        });
+  
+        await order.save();
+      }
+  
+      res.json({ success: true, message: "Customization updated", customization });
+  
+    } catch (error) {
+      console.error("Update customization error:", error);
       res.status(500).json({ success: false, message: "Server error" });
     }
   };
