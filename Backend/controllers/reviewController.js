@@ -133,3 +133,19 @@ exports.getBoutiqueReviews = async (req, res) => {
     res.status(500).json({ success: false, msg: "Server error" });
   }
 };
+
+// DELETE /api/reviews/:id (admin only)
+exports.deleteReviewByAdmin = async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+    if (!review) {
+      return res.status(404).json({ success: false, message: "Review not found" });
+    }
+
+    await review.deleteOne();
+    res.json({ success: true, message: "Review deleted successfully" });
+  } catch (err) {
+    console.error("Delete review error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};

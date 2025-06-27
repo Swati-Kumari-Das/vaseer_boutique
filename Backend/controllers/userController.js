@@ -2,6 +2,8 @@
 const User = require("../models/User");
 const cloudinary = require("cloudinary").v2;
 const { updateUserSchema } = require("../validators/userValidator");
+const { deleteFromCloudinary } = require("../utils/cloudinary");
+
 
 exports.getUserProfile = async (req, res) => {
   try {
@@ -44,8 +46,15 @@ exports.updateProfile = async (req, res) => {
   // DELETE profile
   exports.deleteProfile = async (req, res) => {
     try {
-      await User.findByIdAndDelete(req.user.id);
-      res.json({ success: true, message: "Profile deleted" });
+      const user = await User.findById(req.user.id);
+      if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+      if (user.profilePicture) {
+      await deleteFromCloudinary(user.profilePicture);
+      }
+
+     await user.deleteOne();
+     res.json({ success: true, message: "Profile and picture deleted" });
     } catch (err) {
       res.status(500).json({ success: false, message: "Server error" });
     }

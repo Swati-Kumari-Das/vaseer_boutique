@@ -7,6 +7,8 @@ const sendEmail = require("../utils/sendEmail");
 const cloudinary = require("../utils/cloudinary");
 const streamifier = require("streamifier");
 const { customizationSchema,statusSchema} = require("../validators/customizationValidation");
+const { deleteFromCloudinary } = require("../utils/cloudinary");
+
 
 exports.createCustomization = async (req, res) => {
     try {
@@ -144,7 +146,11 @@ exports.getUserCustomizations = async (req, res) => {
       if (!customization) {
         return res.status(404).json({ success: false, msg: "Customization not found or not yours" });
       }
-  
+      // ✅ Delete image if present
+     if (customization.imageUrl) {
+       await deleteFromCloudinary(customization.imageUrl);
+      } 
+
       const user = await User.findById(req.user.id);
       if (!user) return res.status(404).json({ success: false, msg: "User not found" });
   

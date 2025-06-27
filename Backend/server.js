@@ -57,6 +57,7 @@ const wishlistRoutes = require("./routes/wishlistRoutes");
 app.use("/api/wishlist", wishlistRoutes);
 
 
+
 app.get("/", (req, res) => res.send("API is running"));
 
 const PORT = process.env.PORT || 5000;

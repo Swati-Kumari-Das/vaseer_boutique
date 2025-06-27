@@ -3,8 +3,9 @@ const Product = require("../models/Product");
 const { productSchema } = require("../validators/productValidator");
 const streamifier = require("streamifier");
 const cloudinary = require("../utils/cloudinary");
+const { deleteFromCloudinary } = require("../utils/cloudinary");
 
-
+const { getCloudinaryPublicId } = require("../utils/cloudinary");
 // Upload image buffer to Cloudinary
 const uploadToCloudinary = (fileBuffer) => {
   return new Promise((resolve, reject) => {
@@ -125,6 +126,11 @@ exports.updateProduct = async (req, res) => {
 
     // If a new image is uploaded
     if (req.file) {
+       // Delete old image from Cloudinary
+       const oldPublicId = getCloudinaryPublicId(product.imageUrl);
+       if (oldPublicId) {
+         await cloudinary.uploader.destroy(oldPublicId);
+       }
       const result = await uploadToCloudinary(req.file.buffer);
       updates.imageUrl = result.secure_url;
     }
@@ -142,9 +148,13 @@ exports.updateProduct = async (req, res) => {
   
   exports.deleteProduct = async (req, res) => {
     try {
-      const product = await Product.findByIdAndDelete(req.params.id);
+      const product = await Product.findById(req.params.id);
       if (!product) return res.status(404).json({ success: false, message: "Product not found" });
-  
+
+      // ✅ Delete image from Cloudinary
+       await deleteFromCloudinary(product.imageUrl);
+      // Then delete the product from DB
+       await product.deleteOne();
       res.json({ success: true, message: "Product deleted successfully" });
     } catch (error) {
       console.error("Error deleting product:", error);
