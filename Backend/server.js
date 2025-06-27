@@ -48,6 +48,14 @@ app.use("/api/orders", orderRoutes);
 const reviewRoutes = require("./routes/reviewRoutes");
 app.use("/api", reviewRoutes);
 
+const userRoutes = require("./routes/userRoutes");
+app.use("/api/users", userRoutes);
+require("./utils/cloudinary"); 
+
+app.use("/api/dashboard", require("./routes/dashboardRoutes"));
+const wishlistRoutes = require("./routes/wishlistRoutes");
+app.use("/api/wishlist", wishlistRoutes);
+
 
 app.get("/", (req, res) => res.send("API is running"));
 

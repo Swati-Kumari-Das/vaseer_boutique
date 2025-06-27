@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const upload = require("../utils/multer"); // make sure this uses memory storage
 
 const {
   createProduct,
@@ -11,8 +12,10 @@ const {
 
 const { verifyToken, isAdmin } = require("../middleware/auth");
 
-router.post("/add", verifyToken, isAdmin, createProduct);
-router.put("/:id", verifyToken, isAdmin, updateProduct);
+
+// ⬇️ Use upload.single("image")
+router.post("/add", verifyToken, isAdmin, upload.single("image"), createProduct);
+router.put("/:id", verifyToken, isAdmin, upload.single("image"), updateProduct);
 
 router.get("/all", getAllProducts);
 router.get("/:id", getProductById);

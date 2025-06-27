@@ -29,6 +29,11 @@ const customizationSchema = new mongoose.Schema({
       type: Date,
       default: Date.now,
     },
+    occasion: {
+      type: String,
+      enum: ["Wedding", "Party", "Casual", "Festive", "Other"], // optional enum
+      default: "Other"
+    },
    
       
   });

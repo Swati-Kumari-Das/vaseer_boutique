@@ -2,10 +2,12 @@
 const Customization = require("../models/Customization");
 const Order = require("../models/Order");
 const Product = require("../models/Product");
+const User = require("../models/User");
+const sendEmail = require("../utils/sendEmail");
 
 exports.createCustomization = async (req, res) => {
     try {
-      const { productId, size, color, additionalNotes, contactEmail, designChangeNotes, phone } = req.body;
+      const { productId, size, color, additionalNotes, contactEmail, designChangeNotes, phone ,occasion} = req.body;
   
       const customization = new Customization({
         productId,
@@ -16,9 +18,18 @@ exports.createCustomization = async (req, res) => {
         contactEmail,
         designChangeNotes,
         phone,
+        occasion
       });
   
       await customization.save();
+       // Notify admin
+    const user = await require("../models/User").findById(req.user.id);
+    const adminEmail = process.env.ADMIN_EMAIL;
+    await sendEmail(
+      adminEmail,
+      "🎨 New Customization Request",
+      `New customization request from ${user.name} (${user.email}).\nCategory: ${req.body.category}\nOccasion: ${req.body.occasion || "N/A"}`
+    );
   
       res.status(201).json({ success: true, customization });
     } catch (error) {
@@ -87,3 +98,34 @@ exports.getUserCustomizations = async (req, res) => {
       res.status(500).json({ success: false, message: "Server error" });
     }
   };
+
+  exports.deleteCustomization = async (req, res) => {
+    try {
+      const customization = await Customization.findOne({
+        _id: req.params.id,
+        userId: req.user.id
+      });
+  
+      if (!customization) {
+        return res.status(404).json({ success: false, msg: "Customization not found or not yours" });
+      }
+  
+      const user = await User.findById(req.user.id);
+      if (!user) return res.status(404).json({ success: false, msg: "User not found" });
+  
+      await customization.deleteOne();
+  
+      // Send cancellation email
+      await sendEmail(
+        user.email,
+        "Customization Request Cancelled",
+        `Your customization request (ID: ${customization._id}) has been cancelled successfully.`
+      );
+  
+      res.json({ success: true, msg: "Customization deleted and email sent" });
+    } catch (err) {
+      console.error("Error cancelling customization:", err);
+      res.status(500).json({ success: false, msg: "Server error" });
+    }
+  };
+  

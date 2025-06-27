@@ -1,6 +1,7 @@
 
 const Order = require("../models/Order");
 const sendEmail = require("../utils/sendEmail");
+const User = require("../models/User"); // to get user's email
 
 exports.placeOrder = async (req, res) => {
   try {
@@ -28,6 +29,15 @@ exports.placeOrder = async (req, res) => {
     });
 
     await order.save();
+    // Notify admin
+    const buyer = await require("../models/User").findById(req.user.id);
+    const adminEmail = process.env.ADMIN_EMAIL;
+    await sendEmail(
+      adminEmail,
+      "🛍️ New Order Placed",
+      `New order placed by ${buyer.name} (${buyer.email}).\nProduct: ${product.title}\nQuantity: ${order.quantity}\nTotal: ₹${order.totalAmount}`
+    );
+
     res.status(201).json({ success: true, order });
 
   } catch (err) {
@@ -37,24 +47,69 @@ exports.placeOrder = async (req, res) => {
 };
 
 // Admin: View all orders
+// Admin: View all orders with pagination
 exports.getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate("buyerId", "name email").populate("productId", "title price");
-    res.json({ success: true, orders });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const total = await Order.countDocuments();
+
+    const orders = await Order.find()
+      .populate("buyerId", "name email")
+      .populate("productId", "title price")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+      success: true,
+      orders,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
+
 // Buyer: View own orders
+// Buyer: View own orders with pagination
 exports.getMyOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ buyerId: req.user.id }).populate("productId", "title price");
-    res.json({ success: true, orders });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const total = await Order.countDocuments({ buyerId: req.user.id });
+
+    const orders = await Order.find({ buyerId: req.user.id })
+      .populate("productId", "title price")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+      success: true,
+      orders,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 
 // Admin: Update order status
 
@@ -86,3 +141,27 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
+exports.deleteOrder = async (req, res) => {
+  try {
+    const order = await Order.findOne({ _id: req.params.id, buyerId: req.user.id });
+    if (!order) return res.status(404).json({ success: false, msg: "Order not found or not yours" });
+
+    // Get user email
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ success: false, msg: "User not found" });
+
+    await order.deleteOne();
+
+    // Send email
+    await sendEmail(
+      user.email,
+      "Order Cancelled",
+      `Your order (ID: ${order._id}) for product ${order.productId} has been cancelled successfully.`
+    );
+
+    res.json({ success: true, msg: "Order deleted and email sent" });
+  } catch (err) {
+    console.error("Cancel order error:", err);
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+};
