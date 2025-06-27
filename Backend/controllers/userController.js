@@ -1,6 +1,7 @@
 
 const User = require("../models/User");
 const cloudinary = require("cloudinary").v2;
+const { updateUserSchema } = require("../validators/userValidator");
 
 exports.getUserProfile = async (req, res) => {
   try {
@@ -17,10 +18,25 @@ exports.getUserProfile = async (req, res) => {
 // UPDATE profile
 exports.updateProfile = async (req, res) => {
     try {
+      // ✅ Validate input
+    const { error } = updateUserSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ success: false, message: error.details[0].message });
+    }
       const updates = req.body;
+      // Optional: Handle profile picture if using file upload
+    if (req.file) {
+      const result = await uploadToCloudinary(req.file.buffer);
+      updates.profilePicture = result.secure_url;
+    }
+
       const user = await User.findByIdAndUpdate(req.user.id, updates, { new: true }).select("-password");
+      
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
       res.json({ success: true, user });
     } catch (err) {
+      console.error("Update profile error:", err);
       res.status(500).json({ success: false, message: "Server error" });
     }
   };
@@ -38,6 +54,14 @@ exports.updateProfile = async (req, res) => {
   // UPLOAD profile picture to Cloudinary
   exports.uploadProfilePicture = async (req, res) => {
     try {
+      if (!req.file) {
+        return res.status(400).json({ success: false, message: "No image uploaded" });
+      }
+  
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(req.file.mimetype)) {
+        return res.status(400).json({ success: false, message: "Invalid image format" });
+      }
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "profile_pics",
       });

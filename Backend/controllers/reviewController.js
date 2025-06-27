@@ -1,9 +1,15 @@
 
 const Review = require("../models/Review");
 const Order = require("../models/Order");
+const { reviewSchema } = require("../validators/reviewValidator");
+
 
 // POST /api/products/:id/reviews
 exports.addProductReview = async (req, res) => {
+  const { error } = reviewSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ success: false, message: error.details[0].message });
+  }
   const { comment, rating } = req.body;
   const productId = req.params.id;
 
@@ -64,7 +70,11 @@ exports.getReviewsByProduct = async (req, res) => {
 
 // POST /api/reviews/boutique
 exports.addBoutiqueReview = async (req, res) => {
-    const { comment, rating } = req.body;
+  const { error } = reviewSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ success: false, message: error.details[0].message });
+  }  
+  const { comment, rating } = req.body;
   
     try {
       // ✅ Check if user has received any order

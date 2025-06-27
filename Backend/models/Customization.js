@@ -34,7 +34,10 @@ const customizationSchema = new mongoose.Schema({
       enum: ["Wedding", "Party", "Casual", "Festive", "Other"], // optional enum
       default: "Other"
     },
-   
+    imageUrl: {
+      type: String,
+      default: null,
+    }
       
   });
   module.exports = mongoose.model("Customization", customizationSchema);

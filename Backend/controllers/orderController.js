@@ -2,9 +2,16 @@
 const Order = require("../models/Order");
 const sendEmail = require("../utils/sendEmail");
 const User = require("../models/User"); // to get user's email
+const { orderSchema } = require("../validators/orderValidator"); 
+const Product = require("../models/Product"); // keep this at top
 
 exports.placeOrder = async (req, res) => {
   try {
+     // ✅ Validate user input
+     const { error, value } = orderSchema.validate(req.body);
+     if (error) {
+       return res.status(400).json({ success: false, message: error.details[0].message });
+     }
     const { productId, quantity, shippingAddress, contactPhone,customizationId } = req.body;
 
     if (!productId || !shippingAddress || !contactPhone) {
@@ -16,6 +23,10 @@ exports.placeOrder = async (req, res) => {
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ success: false, message: "Product not found" });
 
+     
+     if (!product) {
+       return res.status(404).json({ success: false, message: "Product not found" });
+     }
     const totalAmount = product.price * (quantity || 1);
 
     const order = new Order({

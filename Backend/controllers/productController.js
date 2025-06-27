@@ -1,6 +1,6 @@
 
 const Product = require("../models/Product");
-
+const { productSchema } = require("../validators/productValidator");
 const streamifier = require("streamifier");
 const cloudinary = require("../utils/cloudinary");
 
@@ -23,6 +23,12 @@ exports.createProduct = async (req, res) => {
   const { title, category, description, price, customizable } = req.body;
 
   try {
+     // Validate form fields (excluding image)
+     const { error, value } = productSchema.validate(req.body);
+     if (error) {
+       return res.status(400).json({ success: false, message: error.details[0].message });
+     }
+ 
     let imageUrl = "";
 
     if (req.file) {
@@ -110,6 +116,11 @@ exports.getAllProducts = async (req, res) => {
  // UPDATE PRODUCT
 exports.updateProduct = async (req, res) => {
   try {
+     // Validate updated data (partial allowed)
+     const { error, value } = productSchema.validate(req.body, { allowUnknown: true, presence: "optional" });
+     if (error) {
+       return res.status(400).json({ success: false, message: error.details[0].message });
+     }
     const updates = req.body;
 
     // If a new image is uploaded

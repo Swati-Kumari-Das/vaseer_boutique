@@ -4,11 +4,40 @@ const Order = require("../models/Order");
 const Product = require("../models/Product");
 const User = require("../models/User");
 const sendEmail = require("../utils/sendEmail");
+const cloudinary = require("../utils/cloudinary");
+const streamifier = require("streamifier");
+const { customizationSchema,statusSchema} = require("../validators/customizationValidation");
 
 exports.createCustomization = async (req, res) => {
     try {
+       // ✅ Validate input
+    const { error } = customizationSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ success: false, message: error.details[0].message });
+    }
+
       const { productId, size, color, additionalNotes, contactEmail, designChangeNotes, phone ,occasion} = req.body;
-  
+      
+      let imageUrl = null;
+
+    if (req.file) {
+      // ✅ Upload to Cloudinary
+      const streamUpload = () => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "customizations" },
+            (error, result) => {
+              if (result) resolve(result);
+              else reject(error);
+            }
+          );
+          streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
+      };
+
+      const result = await streamUpload();
+      imageUrl = result.secure_url;
+    }
       const customization = new Customization({
         productId,
         buyerId: req.user.id,
@@ -18,7 +47,8 @@ exports.createCustomization = async (req, res) => {
         contactEmail,
         designChangeNotes,
         phone,
-        occasion
+        occasion,
+        imageUrl 
       });
   
       await customization.save();
@@ -63,6 +93,11 @@ exports.getUserCustomizations = async (req, res) => {
   
   exports.updateCustomizationStatus = async (req, res) => {
     try {
+        // ✅ Validate the input
+    const { error } = statusSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ success: false, message: error.details[0].message });
+    }
       const { status } = req.body;
       const customization = await Customization.findById(req.params.id);
   
