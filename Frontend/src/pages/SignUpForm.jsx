@@ -4,7 +4,8 @@ import { UserPlus, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { BASE_URL } from '@/utils/api';
+import { useNavigate } from 'react-router-dom';
+import api from '../utils/api';
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
@@ -16,7 +17,7 @@ const SignupForm = () => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
-
+  const navigate = useNavigate();
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -33,13 +34,27 @@ const SignupForm = () => {
       setIsLoading(false);
       return;
     }
-
+    try {
+        const res = await api.post('/auth/register', {
+          fullName: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          role: 'buyer' // 👈 always buyer
+        });
+    
+        alert("Signup successful!");
+        // Optionally store token
+        localStorage.setItem('token', res.data.token);
+        navigate('/');   
+    } catch (err) {
+        console.error(err.response?.data || err.message);
+        alert(err.response?.data?.message || "Signup failed");
+      } finally {
+        setIsLoading(false);
+      }
+     
     // Simulate API call
-    setTimeout(() => {
-      console.log('Signup attempt:', formData);
-      alert(`Account created successfully as ${formData.role}!`);
-      setIsLoading(false);
-    }, 1500);
+   
   };
 
   return (

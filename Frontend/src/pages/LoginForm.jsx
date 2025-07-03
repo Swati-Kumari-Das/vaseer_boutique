@@ -4,25 +4,42 @@ import { LogIn, User, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { BASE_URL } from '@/utils/api';
+import { useNavigate } from 'react-router-dom';
+import api from '../utils/api';
+
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('buyer');
   const [isLoading, setIsLoading] = useState(false);
-
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Login attempt:', { email, password, role });
-      alert(`Login as ${role} with email: ${email}`);
+  
+    try {
+      const res = await api.post('/auth/login', {
+        email,
+        password,
+        role,
+      });
+  
+      // Save token
+      localStorage.setItem('token', res.data.token);
+      alert(`Login successful as ${role}`);
+  
+      // ✅ Navigate after success
+      navigate('/');
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      alert(err.response?.data?.message || "Login failed");
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
+  
+  
 
   return (
     <motion.form
