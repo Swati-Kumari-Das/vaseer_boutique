@@ -4,15 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Camera, Trash2, User, ArrowLeft } from 'lucide-react';
+import {  Trash2, ArrowLeft } from 'lucide-react';
 import { Link , useNavigate } from 'react-router-dom';
 import Alert from '../components/Alert';
 import { userAPI } from '../utils/userAPI'; // ✅ adjust path if needed
 
 
 const Profile = () => {
-  const [profilePicture, setProfilePicture] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState('');
+  
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   
   const navigate = useNavigate();
@@ -31,23 +30,26 @@ const Profile = () => {
     const fetchProfile = async () => {
       try {
         const res = await userAPI.getProfile();
-        console.log(res);
         const user = res?.data?.user;
+  
         setFormData({
-          name: user.name || '',
-          email: user.email || '',
-          phone: user.phone || '',
-          address: user.address || '',
+          name: user?.name || '',
+          email: user?.email || '',
+          phone: user?.phone || '',
+          address: user?.address || '',
         });
+  
         setProfileData(user);
       } catch (err) {
-        console.error("Fetch profile error:", err.response || err.message);
-        setAlert({ type: 'error', message: 'Failed to load profile' });
+        console.error("Fetch profile error:", err);
+        const message = err?.response?.data?.message || 'Failed to load profile';
+        setAlert({ type: 'error', message });
       }
     };
   
     fetchProfile();
   }, []);
+  
 
   
   
@@ -56,13 +58,7 @@ const Profile = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePictureChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setProfilePicture(file);
-      setPreviewUrl(URL.createObjectURL(file));
-    }
-  };
+ 
   const validateForm = () => {
     const { name, email, phone, address } = formData;
   
@@ -102,18 +98,7 @@ const Profile = () => {
   
   
 
-  const handleUploadPicture = async () => {
-    if (!profilePicture) return;
-    try {
-      await userAPI.uploadProfilePicture(profilePicture);
-      setAlert({ type: 'success', message: 'Picture updated' });
-      setProfilePicture(null);
-      setPreviewUrl('');
-      fetchProfile(); // refresh updated pic
-    } catch {
-      setAlert({ type: 'error', message: 'Upload failed' });
-    }
-  };
+
   
   const handleDeleteProfile = () => {
     setShowConfirmDelete(true); // Just show the confirmation box
@@ -184,7 +169,7 @@ const Profile = () => {
 
 
         {/* Profile Picture */}
-        <Card className="mb-6">
+        {/* <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-lg text-center">Profile Picture</CardTitle>
           </CardHeader>
@@ -213,7 +198,7 @@ const Profile = () => {
               )}
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Profile Info */}
         <Card className="mb-6">

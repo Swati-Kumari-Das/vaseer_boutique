@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   phone: String,
   address: String,
-  profilePicture: String, // Cloudinary URL
+ // profilePicture: String, // Cloudinary URL
   role: {
     type: String,
     enum: ["buyer", "admin"],

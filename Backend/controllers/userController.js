@@ -1,8 +1,8 @@
 
 const User = require("../models/User");
-const cloudinary = require("cloudinary").v2;
+// const cloudinary = require("cloudinary").v2;
 const { updateUserSchema } = require("../validators/userValidator");
-const { deleteFromCloudinary } = require("../utils/cloudinary");
+// const { deleteFromCloudinary } = require("../utils/cloudinary");
 
 
 exports.getUserProfile = async (req, res) => {
@@ -62,26 +62,26 @@ exports.updateProfile = async (req, res) => {
   };
   
   // UPLOAD profile picture to Cloudinary
-  exports.uploadProfilePicture = async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ success: false, message: "No image uploaded" });
-      }
+  // exports.uploadProfilePicture = async (req, res) => {
+  //   try {
+  //     if (!req.file) {
+  //       return res.status(400).json({ success: false, message: "No image uploaded" });
+  //     }
   
-      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-      if (!allowedTypes.includes(req.file.mimetype)) {
-        return res.status(400).json({ success: false, message: "Invalid image format" });
-      }
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: "profile_pics",
-      });
+  //     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+  //     if (!allowedTypes.includes(req.file.mimetype)) {
+  //       return res.status(400).json({ success: false, message: "Invalid image format" });
+  //     }
+  //     const result = await cloudinary.uploader.upload(req.file.path, {
+  //       folder: "profile_pics",
+  //     });
   
-      const user = await User.findByIdAndUpdate(req.user.id, {
-        profilePicture: result.secure_url,
-      }, { new: true });
+  //     const user = await User.findByIdAndUpdate(req.user.id, {
+  //       profilePicture: result.secure_url,
+  //     }, { new: true });
   
-      res.json({ success: true, profilePicture: user.profilePicture });
-    } catch (err) {
-      res.status(500).json({ success: false, message: "Image upload failed" });
-    }
-  };
+  //     res.json({ success: true, profilePicture: user.profilePicture });
+  //   } catch (err) {
+  //     res.status(500).json({ success: false, message: "Image upload failed" });
+  //   }
+  // };

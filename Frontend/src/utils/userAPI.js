@@ -20,9 +20,5 @@ export const userAPI = {
   getProfile: () => API.get('/users/profile'),
   updateProfile: (data) => API.put('/users/profile', data),
   deleteProfile: () => API.delete('/users/profile'),
-  uploadProfilePicture: (file) => {
-    const formData = new FormData();
-    formData.append('image', file);
-    return API.post('/users/profile/picture', formData);
-  },
+
 };
