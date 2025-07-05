@@ -21,17 +21,18 @@ app.use("/api/auth", require("./routes/authRoutes"));
 // (Other routes will be added later)
 //app.use("/api/products", require("./routes/productRoutes"));
 const productRoutes = require('./routes/productRoutes');
-app.use("/api/products", productRoutes);  
+app.use("/api/products", productRoutes); 
+
 // app.get("/setup-admin", async (req, res) => {
 //     try {
-//       const existing = await User.findOne({ email: "admin@example.com" });
+//       const existing = await User.findOne({ email: "admin@gmail.com" });
 //       if (existing) return res.send("Admin already exists");
   
 //       const hashed = await bcrypt.hash("admin123", 10);
   
 //       const admin = await User.create({
 //         name: "Admin",
-//         email: "admin@example.com",
+//         email: "admin@gmail.com",
 //         password: hashed,
 //         role: "admin"
 //       });
@@ -42,6 +43,8 @@ app.use("/api/products", productRoutes);
 //       res.status(500).send("Error creating admin");
 //     }
 //   });
+
+
 const customizationRoutes = require('./routes/customizationRoutes');
 app.use('/api/customizations', customizationRoutes);
 

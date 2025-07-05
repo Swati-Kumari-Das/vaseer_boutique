@@ -5,7 +5,7 @@ const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   console.log("🔐 Auth header:", authHeader); // 👈 Debug log
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    onsole.log("❌ No token or malformed header");
+    console.log("❌ No token or malformed header");
     return res.status(401).json({ msg: "No token provided" });
   }
 

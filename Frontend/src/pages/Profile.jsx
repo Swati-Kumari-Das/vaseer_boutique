@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Camera, Trash2, User, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link , useNavigate } from 'react-router-dom';
 import Alert from '../components/Alert';
 import { userAPI } from '../utils/userAPI'; // ✅ adjust path if needed
 
@@ -13,6 +13,10 @@ import { userAPI } from '../utils/userAPI'; // ✅ adjust path if needed
 const Profile = () => {
   const [profilePicture, setProfilePicture] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -21,6 +25,7 @@ const Profile = () => {
   });
   const [profileData, setProfileData] = useState(null);
   const [alert, setAlert] = useState({ type: '', message: '' });
+
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -43,6 +48,8 @@ const Profile = () => {
   
     fetchProfile();
   }, []);
+
+  
   
 
   const handleInputChange = (e) => {
@@ -56,15 +63,43 @@ const Profile = () => {
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
-
+  const validateForm = () => {
+    const { name, email, phone, address } = formData;
+  
+    if (!name.trim() || !email.trim() || !phone.trim() || !address.trim()) {
+      setAlert({ type: 'error', message: 'All fields are required' });
+      return false;
+    }
+  
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phone)) {
+      setAlert({ type: 'error', message: 'Phone must be NUMBER and 10 digits' });
+      return false;
+    }
+  
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setAlert({ type: 'error', message: 'Enter a valid email' });
+      return false;
+    }
+  
+    return true;
+  };
+  
   const handleUpdateProfile = async () => {
+    if (!validateForm()) return;
+  
     try {
       await userAPI.updateProfile(formData);
       setAlert({ type: 'success', message: 'Profile updated!' });
-    } catch {
-      setAlert({ type: 'error', message: 'Update failed' });
+    } catch (err) {
+      const message =
+        err?.response?.data?.message || 'Update failed';
+      setAlert({ type: 'error', message });
     }
   };
+  
+  
   
 
   const handleUploadPicture = async () => {
@@ -80,21 +115,24 @@ const Profile = () => {
     }
   };
   
-  const handleDeleteProfile = async () => {
-    if (!window.confirm('Are you sure?')) return;
-    try {
-      await userAPI.deleteProfile();
-      localStorage.removeItem('token');
-      setAlert({ type: 'info', message: 'Profile deleted' });
-      navigate('/');
-    } catch {
-      setAlert({ type: 'error', message: 'Delete failed' });
-    }
+  const handleDeleteProfile = () => {
+    setShowConfirmDelete(true); // Just show the confirmation box
   };
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) navigate('/login');
   }, []);
+
+  useEffect(() => {
+    if (alert.message) {
+      const timer = setTimeout(() => {
+        setAlert({ type: '', message: '' });
+      }, 4000); // 4 seconds
+  
+      return () => clearTimeout(timer);
+    }
+  }, [alert]);
+  
   
 
   return (
@@ -108,8 +146,42 @@ const Profile = () => {
           <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
           <p className="text-gray-600">Manage your personal details and settings</p>
         </motion.div>
+                {alert.message && (
+          <Alert
+            type={alert.type}
+            onClose={() => setAlert({ type: '', message: '' })}
+          >
+            {alert.message}
+          </Alert>
+         )}
+         {showConfirmDelete && (
+  <div className="mb-4 px-4 py-3 rounded-md bg-red-100 text-red-800 border border-red-300 shadow-sm">
+    <p className="mb-2 font-semibold">Are you sure you want to delete your profile?</p>
+    <div className="flex gap-4">
+      <Button
+        className="bg-red-600 text-white hover:bg-red-700"
+        onClick={async () => {
+          try {
+            await userAPI.deleteProfile();
+            localStorage.removeItem('token');
+            setAlert({ type: 'info', message: 'Profile deleted' });
+            setShowConfirmDelete(false);
+            navigate('/');
+          } catch {
+            setAlert({ type: 'error', message: 'Delete failed' });
+            setShowConfirmDelete(false);
+          }
+        }}
+      >
+        Yes, Delete
+      </Button>
+      <Button variant="outline" onClick={() => setShowConfirmDelete(false)}>
+        Cancel
+      </Button>
+    </div>
+  </div>
+)}
 
-        {alert.message && <Alert type={alert.type}>{alert.message}</Alert>}
 
         {/* Profile Picture */}
         <Card className="mb-6">
@@ -164,13 +236,13 @@ const Profile = () => {
               </div>
             ))}
             <div className="flex gap-4 mt-4">
-              <Button onClick={handleUpdateProfile} className="bg-yellow-500 text-white w-full">
+              <Button onClick={handleUpdateProfile} className="bg-yellow-500 text-white ">
                 Update Profile
               </Button>
-              <Button onClick={handleDeleteProfile} variant="destructive" className="w-full">
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete Profile
-              </Button>
+              <Button onClick={handleDeleteProfile} className="bg-red-600 text-white  hover:bg-red-700">
+             <Trash2 className="w-4 h-4 mr-2" />
+              Delete Profile
+             </Button>
             </div>
           </CardContent>
         </Card>
