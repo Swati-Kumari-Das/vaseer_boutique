@@ -1,11 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Menu, X, Heart, ShoppingBag, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
+function getUserRoleFromToken() {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.role; // either "admin" or "buyer"
+  } catch (error) {
+    return null;
+  }
+}
 const Navbar = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+  const [userRole, setUserRole] = useState(getUserRoleFromToken());
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -14,6 +27,20 @@ const Navbar = () => {
     }
     setIsMenuOpen(false);
   };
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    navigate('/');
+  };
+  useEffect(() => {
+    const checkLogin = () => {
+      setIsLoggedIn(!!localStorage.getItem('token'));
+      setUserRole(getUserRoleFromToken());
+    };
+  
+    window.addEventListener('storage', checkLogin);
+    return () => window.removeEventListener('storage', checkLogin);
+  }, []);
 
   return (
     <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-md z-50 border-b border-gray-200">
@@ -52,21 +79,80 @@ const Navbar = () => {
             </button>
           </div>
 
-          <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/auth?type=login')}>
-              <User className="h-4 w-4 mr-2" />
-              Login
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/auth?type=signup')}>
-              Sign Up
-            </Button>
-            <Button variant="ghost" size="sm">
-              <Heart className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm">
-              <ShoppingBag className="h-4 w-4" />
-            </Button>
-          </div>
+          <div className="hidden md:flex items-center space-x-4 ">
+  {isLoggedIn ? (
+    <>
+      {/* ✅ Dashboard only for admin */}
+      {userRole === 'admin' && (
+        <Button
+          className="text-gray-700 hover:text-yellow-600 transition-colors"
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/admin/dashboard')}
+        >
+          Dashboard
+        </Button>
+      )}
+
+      {/* ✅ Common for all logged-in users */}
+      <Button
+        className="text-gray-700 hover:text-yellow-600 transition-colors"
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate('/account')}
+      >
+        <User className="h-4 w-4 mr-1" />
+        My Account
+      </Button>
+
+      <Button
+        className="text-gray-700 hover:text-yellow-600 transition-colors"
+        variant="ghost"
+        size="sm"
+        onClick={handleLogout}
+      >
+        Logout
+      </Button>
+    </>
+  ) : (
+    <>
+      <Button
+        className="text-gray-700 hover:text-yellow-600 transition-colors"
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate('/auth?type=login')}
+      >
+        <User className="h-4 w-4 mr-2" />
+        Login
+      </Button>
+      <Button
+        className="text-gray-700 hover:text-yellow-600 transition-colors"
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate('/auth?type=signup')}
+      >
+        Sign Up
+      </Button>
+    </>
+  )}
+
+  {/* Common Icons */}
+  <Button
+    className="text-gray-700 hover:text-yellow-600 transition-colors"
+    variant="ghost"
+    size="sm"
+  >
+    <Heart className="h-4 w-4" />
+  </Button>
+  <Button
+    className="text-gray-700 hover:text-yellow-600 transition-colors"
+    variant="ghost"
+    size="sm"
+  >
+    <ShoppingBag className="h-4 w-4" />
+  </Button>
+</div>
+
 
           <div className="md:hidden">
             <button
@@ -105,23 +191,81 @@ const Navbar = () => {
               >
                 Products
               </button>
-              <div className="pt-4 border-t border-gray-200  space-y-2">
-                <Button variant="ghost" size="sm" onClick={() => navigate('/auth?type=login')} className="w-full justify-start ">
-                  <User className="h-4 w-4 mr-2" />
-                  Login
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/auth?type=signup')} className="w-full justify-start">
-                  Sign Up
-                </Button>
-                <div className="flex space-x-2">
-                  <Button variant="ghost" size="sm">
-                    <Heart className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <ShoppingBag className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+              <div className="pt-4 border-t border-gray-200 space-y-2">
+  {isLoggedIn ? (
+    <>
+      {/* ✅ Dashboard only for admin */}
+      {userRole === 'admin' && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            navigate('/admin/dashboard');
+            setIsMenuOpen(false);
+          }}
+          className="w-full justify-start text-gray-700 hover:text-yellow-600 transition-colors"
+        >
+          Dashboard
+        </Button>
+      )}
+
+      {/* ✅ Common for logged-in users */}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="w-full justify-start text-gray-700 hover:text-yellow-600 transition-colors"
+        onClick={() => navigate('/account')}
+      >
+        <User className="h-4 w-4 mr-1" />
+        My Account
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => {
+          handleLogout();
+          setIsMenuOpen(false);
+        }}
+        className="w-full justify-start text-gray-700 hover:text-yellow-600 transition-colors"
+      >
+        Logout
+      </Button>
+    </>
+  ) : (
+    <>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate('/auth?type=login')}
+        className="w-full justify-start text-gray-700 hover:text-yellow-600 transition-colors"
+      >
+        <User className="h-4 w-4 mr-2" />
+        Login
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate('/auth?type=signup')}
+        className="w-full justify-start text-gray-700 hover:text-yellow-600 transition-colors"
+      >
+        Sign Up
+      </Button>
+    </>
+  )}
+
+  {/* ❤️ 🛍 Icons (always visible) */}
+  <div className="flex space-x-2 pt-2">
+    <Button variant="ghost" size="sm">
+      <Heart className="h-4 w-4" />
+    </Button>
+    <Button variant="ghost" size="sm">
+      <ShoppingBag className="h-4 w-4" />
+    </Button>
+  </div>
+</div>
+
+
             </div>
           </div>
         )}

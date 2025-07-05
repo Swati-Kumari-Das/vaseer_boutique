@@ -13,7 +13,10 @@ app.use(cors());
 app.use(express.json());
 
 connectDB();
-
+app.use(cors({
+    origin: "http://localhost:5173", // allow Vite frontend
+    credentials: true, // if using cookies in the future
+  }));
 app.use("/api/auth", require("./routes/authRoutes"));
 // (Other routes will be added later)
 //app.use("/api/products", require("./routes/productRoutes"));
@@ -51,6 +54,8 @@ app.use("/api", reviewRoutes);
 const userRoutes = require("./routes/userRoutes");
 app.use("/api/users", userRoutes);
 require("./utils/cloudinary"); 
+
+
 
 app.use("/api/dashboard", require("./routes/dashboardRoutes"));
 const wishlistRoutes = require("./routes/wishlistRoutes");

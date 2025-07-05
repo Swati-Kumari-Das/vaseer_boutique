@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { UserPlus, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
+import Alert from '@/components/Alert';
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +18,16 @@ const SignupForm = () => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
+const [messageType, setMessageType] = useState('');
+useEffect(() => {
+  if (message) {
+    const timer = setTimeout(() => setMessage(null), 3000); // auto-dismiss in 3 sec
+    return () => clearTimeout(timer); // cleanup on unmount or re-render
+  }
+}, [message]);
+
+
   const navigate = useNavigate();
   const handleChange = (e) => {
     setFormData({
@@ -30,25 +41,29 @@ const SignupForm = () => {
     setIsLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      setMessage('Passwords do not match!');
+      setMessageType('error');
       setIsLoading(false);
       return;
     }
     try {
         const res = await api.post('/auth/register', {
-          fullName: formData.fullName,
+          name: formData.fullName,
           email: formData.email,
           password: formData.password,
           role: 'buyer' // 👈 always buyer
         });
     
-        alert("Signup successful!");
+        setMessage(`Account created successfully as ${formData.role}!`);
+        setMessageType('success');
         // Optionally store token
         localStorage.setItem('token', res.data.token);
         navigate('/');   
     } catch (err) {
         console.error(err.response?.data || err.message);
-        alert(err.response?.data?.message || "Signup failed");
+        const backendMsg = err.response?.data?.msg || 'Signup failed ❌';
+        setMessage(backendMsg);
+        setMessageType('error');
       } finally {
         setIsLoading(false);
       }
@@ -66,7 +81,8 @@ const SignupForm = () => {
       onSubmit={handleSubmit}
       className="space-y-6"
     >
-    
+     {message && <Alert type={messageType}>{message}</Alert>}
+
 
       {/* Full name field */}
       <div className="space-y-2">

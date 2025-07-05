@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState ,useEffect} from 'react';
 import { motion } from 'framer-motion';
 import { LogIn, User, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,38 +6,55 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-
+import Alert from '@/components/Alert';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('buyer');
   const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState(null); // for showing message
+  const [messageType, setMessageType] = useState(''); // 'success' or 'error'
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
   const navigate = useNavigate();
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage(null);
     setIsLoading(true);
-  
+
     try {
       const res = await api.post('/auth/login', {
         email,
         password,
         role,
       });
-  
-      // Save token
+
       localStorage.setItem('token', res.data.token);
-      alert(`Login successful as ${role}`);
-  
-      // ✅ Navigate after success
-      navigate('/');
+
+      setMessage(`✅ Successfully logged in as ${role}`);
+      setMessageType('success');
+
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
     } catch (err) {
-      console.error(err.response?.data || err.message);
-      alert(err.response?.data?.message || "Login failed");
+      console.log(err.response?.data);
+      const backendMsg = err?.response?.data?.msg || err.message;
+       
+       setMessage(backendMsg || "Login failed ❌");
+       setMessageType("error");
     } finally {
       setIsLoading(false);
     }
   };
+
   
   
 
@@ -50,10 +67,12 @@ const LoginForm = () => {
       onSubmit={handleSubmit}
       className="space-y-6"
     >
+      {message && <Alert type={messageType}>{message}</Alert>}
       {/* Role selection */}
       <div className="space-y-3">
         <Label className="text-gray-900 text-sm font-medium">Login as</Label>
         <div className="grid grid-cols-2 gap-3">
+          
           <motion.button
             type="button"
             whileHover={{ scale: 1.02 }}

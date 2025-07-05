@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import LoginForm from './LoginForm';
 import SignupForm from './SignupForm';
 import { useSearchParams } from 'react-router-dom';
-
+import Alert from '@/components/Alert';
 const AuthPage = () => {
     const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(true);
@@ -32,6 +32,8 @@ const AuthPage = () => {
         <div className="backdrop-blur-lg bg-white/90 rounded-2xl shadow-2xl border border-gray-200 p-8">
           {/* Header */}
           <div className="text-center mb-8">
+
+            
             <motion.h1
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -48,6 +50,7 @@ const AuthPage = () => {
             >
               {isLogin ? 'Sign in to your account' : 'Create your new account'}
             </motion.p>
+            
           </div>
 
           {/* Toggle buttons */}
