@@ -12,19 +12,25 @@ import { userAPI } from '../utils/userAPI'; // ✅ adjust path if needed
 
 const Profile = () => {
   
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   
-  const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     address: '',
   });
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  
+  const navigate = useNavigate();
+
   const [profileData, setProfileData] = useState(null);
   const [alert, setAlert] = useState({ type: '', message: '' });
 
+  // 🛡️ Redirect if not logged in
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+    if (!token) navigate('/login');
+  }, [navigate]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -103,10 +109,6 @@ const Profile = () => {
   const handleDeleteProfile = () => {
     setShowConfirmDelete(true); // Just show the confirmation box
   };
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) navigate('/login');
-  }, []);
 
   useEffect(() => {
     if (alert.message) {
@@ -149,6 +151,7 @@ const Profile = () => {
           try {
             await userAPI.deleteProfile();
             localStorage.removeItem('token');
+            localStorage.removeItem('adminToken');
             setAlert({ type: 'info', message: 'Profile deleted' });
             setShowConfirmDelete(false);
             navigate('/');

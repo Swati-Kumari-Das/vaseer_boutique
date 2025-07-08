@@ -36,9 +36,14 @@ const LoginForm = () => {
         role,
       });
 
+    //  localStorage.setItem('token', res.data.token);
+    if (res.data.user.role === 'admin') {
+      localStorage.setItem('adminToken', res.data.token);
+    } else {
       localStorage.setItem('token', res.data.token);
-
-      setMessage(`✅ Successfully logged in as ${role}`);
+    }
+    
+      setMessage(`Successfully logged In `);
       setMessageType('success');
 
       setTimeout(() => {
@@ -69,7 +74,7 @@ const LoginForm = () => {
     >
       {message && <Alert type={messageType}>{message}</Alert>}
       {/* Role selection */}
-      <div className="space-y-3">
+      {/* <div className="space-y-3">
         <Label className="text-gray-900 text-sm font-medium">Login as</Label>
         <div className="grid grid-cols-2 gap-3">
           
@@ -103,7 +108,7 @@ const LoginForm = () => {
             <span className="text-sm font-medium">Admin</span>
           </motion.button>
         </div>
-      </div>
+      </div> */}
 
       {/* Email field */}
       <div className="space-y-2">
@@ -172,7 +177,7 @@ const LoginForm = () => {
           ) : (
             <div className="flex items-center justify-center">
               <LogIn className="w-5 h-5 mr-2" />
-              Sign in as {role}
+              Sign in 
             </div>
           )}
         </Button>

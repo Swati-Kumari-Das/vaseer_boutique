@@ -3,8 +3,9 @@ import { Menu, X, Heart, ShoppingBag, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
+// ✅ UPDATED: Check both adminToken and token
 function getUserRoleFromToken() {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
   if (!token) return null;
 
   try {
@@ -14,10 +15,15 @@ function getUserRoleFromToken() {
     return null;
   }
 }
+
 const Navbar = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+   // ✅ UPDATED: Check both tokens for initial login state
+   const [isLoggedIn, setIsLoggedIn] = useState(
+    !!(localStorage.getItem('adminToken') || localStorage.getItem('token'))
+  );
+
   const [userRole, setUserRole] = useState(getUserRoleFromToken());
 
   const scrollToSection = (sectionId) => {
@@ -27,14 +33,20 @@ const Navbar = () => {
     }
     setIsMenuOpen(false);
   };
+ 
+  // ✅ UPDATED: Remove both tokens
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('adminToken');
     setIsLoggedIn(false);
     navigate('/');
   };
+ 
   useEffect(() => {
     const checkLogin = () => {
-      setIsLoggedIn(!!localStorage.getItem('token'));
+      // ✅ UPDATED: Check both tokens again
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+      setIsLoggedIn(!!token);
       setUserRole(getUserRoleFromToken());
     };
   

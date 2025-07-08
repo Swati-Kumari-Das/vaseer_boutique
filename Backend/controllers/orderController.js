@@ -43,11 +43,17 @@ exports.placeOrder = async (req, res) => {
     // Notify admin
     const buyer = await require("../models/User").findById(req.user.id);
     const adminEmail = process.env.ADMIN_EMAIL;
-    await sendEmail(
-      adminEmail,
-      "🛍️ New Order Placed",
-      `New order placed by ${buyer.name} (${buyer.email}).\nProduct: ${product.title}\nQuantity: ${order.quantity}\nTotal: ₹${order.totalAmount}`
-    );
+    await sendEmail({
+      to: adminEmail,
+      subject: "🛍️ New Order Placed",
+      text: `New order placed by ${buyer.name} (${buyer.email}).\nProduct: ${product.title}\nQuantity: ${order.quantity}\nTotal: ₹${order.totalAmount}`,
+    });
+    // Notify buyer
+await sendEmail({
+  to: buyer.email,
+  subject: "🧾 Your Order Confirmation - Vaseer Boutique",
+  text: `Dear ${buyer.name},\n\nThank you for placing an order with Vaseer Boutique!\n\n🛍️ Product: ${product.title}\n📦 Quantity: ${order.quantity}\n💰 Total: ₹${order.totalAmount}\n📍 Shipping Address: ${order.shippingAddress}\n\nWe'll notify you when your order is confirmed.\n\nWarm regards,\nTeam Vaseer`,
+});
 
     res.status(201).json({ success: true, order });
 

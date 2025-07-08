@@ -7,6 +7,7 @@ import ReactDOM from 'react-dom/client';
 import AuthPage from './pages/AuthPage'; 
 import Profile from "./pages/Profile";
 import Index from "./pages/Index";
+import AdminDashboard from './pages/AdminDashboard';
 function App() {
   return (
     <>
@@ -18,6 +19,7 @@ function App() {
         <Route path="/Signup" element={<Signup />} /> */}
         {/* Add more routes */}
         <Route path="/account" element={<Profile />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Routes>
      
     </>

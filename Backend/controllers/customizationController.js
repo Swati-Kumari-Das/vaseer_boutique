@@ -57,11 +57,18 @@ exports.createCustomization = async (req, res) => {
        // Notify admin
     const user = await require("../models/User").findById(req.user.id);
     const adminEmail = process.env.ADMIN_EMAIL;
-    await sendEmail(
-      adminEmail,
-      "🎨 New Customization Request",
-      `New customization request from ${user.name} (${user.email}).\nCategory: ${req.body.category}\nOccasion: ${req.body.occasion || "N/A"}`
-    );
+    await sendEmail({
+      to: adminEmail,
+      subject: "🎨 New Customization Request",
+      text: `New customization request from ${user.name} (${user.email}).\n\nProduct ID: ${productId}\nOccasion: ${occasion || "N/A"}`
+    });
+    
+    await sendEmail({
+      to: user.email,
+      subject: "🧵 Customization Request Received",
+      text: `Dear ${user.name},\n\nThank you for your customization request!\n\nOur team will review the details and contact you shortly.\n\nRegards,\nVaseer Boutique`
+    });
+    
   
       res.status(201).json({ success: true, customization });
     } catch (error) {
@@ -156,12 +163,12 @@ exports.getUserCustomizations = async (req, res) => {
   
       await customization.deleteOne();
   
-      // Send cancellation email
-      await sendEmail(
-        user.email,
-        "Customization Request Cancelled",
-        `Your customization request (ID: ${customization._id}) has been cancelled successfully.`
-      );
+      await sendEmail({
+        to: user.email,
+        subject: "Customization Request Cancelled",
+        text: `Dear ${user.name},\n\nYour customization request (ID: ${customization._id}) has been cancelled. Unfortunately, it cannot be customized.\n\nRegards,\nVaseer Boutique`
+      });
+      
   
       res.json({ success: true, msg: "Customization deleted and email sent" });
     } catch (err) {

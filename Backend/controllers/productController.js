@@ -21,7 +21,7 @@ const uploadToCloudinary = (fileBuffer) => {
 };
 // CREATE PRODUCT
 exports.createProduct = async (req, res) => {
-  const { title, category, description, price, customizable } = req.body;
+  const { title, category, description, price, customizable,fabricType } = req.body;
 
   try {
      // Validate form fields (excluding image)
@@ -43,7 +43,8 @@ exports.createProduct = async (req, res) => {
       description,
       price,
       imageUrl,
-      customizable
+      customizable,
+      fabricType,
     });
 
     await product.save();
