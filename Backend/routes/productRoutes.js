@@ -7,7 +7,8 @@ const {
   getAllProducts,
   getProductById,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getProductCategories
 } = require("../controllers/productController");
 
 const { verifyToken, isAdmin } = require("../middleware/auth");
@@ -18,6 +19,7 @@ router.post("/add", verifyToken, isAdmin, upload.single("image"), createProduct)
 router.put("/:id", verifyToken, isAdmin, upload.single("image"), updateProduct);
 
 router.get("/", getAllProducts);
+router.get("/categories", getProductCategories);
 router.get("/:id", getProductById);
 router.delete("/:id", verifyToken, isAdmin, deleteProduct);
 

@@ -65,7 +65,9 @@ exports.getAllProducts = async (req, res) => {
       maxPrice,
       page = 1,
       limit = 10,
-      search
+      search,
+      sortBy = "createdAt",
+      order = "desc"
     } = req.query;
 
     let filter = {};
@@ -87,10 +89,16 @@ exports.getAllProducts = async (req, res) => {
 
     const skip = (Number(page) - 1) * Number(limit);
     const total = await Product.countDocuments(filter);
+    
+     // 🆕 Add sorting
+     const sortOptions = {};
+     sortOptions[sortBy] = order === "asc" ? 1 : -1;
 
-    const products = await Product.find(filter)
+     const products = await Product.find(filter)
+      .sort(sortOptions)
       .skip(skip)
       .limit(Number(limit));
+
 
     res.status(200).json({
       success: true,
@@ -105,6 +113,15 @@ exports.getAllProducts = async (req, res) => {
 };
 
 
+// GET UNIQUE CATEGORIES
+exports.getProductCategories = async (req, res) => {
+  try {
+    const categories = await Product.distinct("category");
+    res.json({ success: true, categories });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to fetch categories" });
+  }
+};
 
   exports.getProductById = async (req, res) => {
     try {
