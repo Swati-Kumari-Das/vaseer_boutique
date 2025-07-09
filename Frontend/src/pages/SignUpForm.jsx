@@ -57,7 +57,9 @@ useEffect(() => {
         setMessage(`Account created successfully as ${formData.role}!`);
         setMessageType('success');
         // Optionally store token
+        // localStorage.setItem('token', res.data.token);
         localStorage.setItem('token', res.data.token);
+
         navigate('/');   
     } catch (err) {
         console.error(err.response?.data || err.message);

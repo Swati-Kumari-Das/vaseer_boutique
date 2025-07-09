@@ -7,15 +7,18 @@ cloudinary.config({
   api_secret: process.env.CLOUD_API_SECRET
 });
 // utils/cloudinaryHelpers.js
-exports.getCloudinaryPublicId = (imageUrl) => {
+// ✅ Define helper functions BEFORE exporting
+const getCloudinaryPublicId = (imageUrl) => {
   if (!imageUrl) return null;
   const parts = imageUrl.split("/");
-  const fileName = parts[parts.length - 1]; // e.g., dress1_abcd1234.jpg
-  const publicId = fileName.split(".")[0]; // remove .jpg/.png
-  return `products/${publicId}`; // folder + filename without extension
+  const fileName = parts[parts.length - 1];
+  const publicId = fileName.split(".")[0];
+  return `products/${publicId}`;
 };
 
-exports.deleteFromCloudinary = async (imageUrl) => {
+
+
+const deleteFromCloudinary = async (imageUrl) => {
   try {
     if (!imageUrl) return;
 
@@ -27,9 +30,14 @@ exports.deleteFromCloudinary = async (imageUrl) => {
 
     // Delete from Cloudinary
     await cloudinary.uploader.destroy(publicId);
+    console.log("✅ Deleted from Cloudinary:", publicId);
   } catch (err) {
     console.error("Cloudinary deletion failed:", err.message);
   }
 };
 
-module.exports = cloudinary;
+module.exports = {
+  cloudinary,
+  getCloudinaryPublicId,
+  deleteFromCloudinary
+};

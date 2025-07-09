@@ -39,7 +39,7 @@ export default function ProductFormModal({ onClose, onSuccess, initialData }) {
 
       const url = initialData
         ? `/api/products/${initialData._id}`
-        : "/api/products";
+        : "/api/products/add";
 
       const method = initialData ? "put" : "post";
 
@@ -59,7 +59,7 @@ export default function ProductFormModal({ onClose, onSuccess, initialData }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-opacity-30 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg w-full max-w-lg p-6 shadow-lg relative">
         <button onClick={onClose} className="absolute top-3 right-3 text-gray-600 hover:text-black">
           <X />

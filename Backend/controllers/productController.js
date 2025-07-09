@@ -2,10 +2,12 @@
 const Product = require("../models/Product");
 const { productSchema } = require("../validators/productValidator");
 const streamifier = require("streamifier");
-const cloudinary = require("../utils/cloudinary");
-const { deleteFromCloudinary } = require("../utils/cloudinary");
+const {
+  cloudinary,
+  getCloudinaryPublicId,
+  deleteFromCloudinary,
+} = require("../utils/cloudinary");
 
-const { getCloudinaryPublicId } = require("../utils/cloudinary");
 // Upload image buffer to Cloudinary
 const uploadToCloudinary = (fileBuffer) => {
   return new Promise((resolve, reject) => {
@@ -116,33 +118,49 @@ exports.getAllProducts = async (req, res) => {
   };
   
  // UPDATE PRODUCT
-exports.updateProduct = async (req, res) => {
+ exports.updateProduct = async (req, res) => {
   try {
-     // Validate updated data (partial allowed)
-     const { error, value } = productSchema.validate(req.body, { allowUnknown: true, presence: "optional" });
-     if (error) {
-       return res.status(400).json({ success: false, message: error.details[0].message });
-     }
+    const { error } = productSchema.validate(req.body, {
+      allowUnknown: true,
+      presence: "optional",
+    });
+    if (error) {
+      return res
+        .status(400)
+        .json({ success: false, message: error.details[0].message });
+    }
+
     const updates = req.body;
 
-    // If a new image is uploaded
+    // ✅ Get existing product first
+    const product = await Product.findById(req.params.id);
+    if (!product)
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+
+    // ✅ If a new image is uploaded, remove old one
     if (req.file) {
-       // Delete old image from Cloudinary
-       const oldPublicId = getCloudinaryPublicId(product.imageUrl);
-       if (oldPublicId) {
-         await cloudinary.uploader.destroy(oldPublicId);
-       }
+      const oldPublicId = getCloudinaryPublicId(product.imageUrl);
+      if (oldPublicId) {
+        await cloudinary.uploader.destroy(oldPublicId);
+      }
       const result = await uploadToCloudinary(req.file.buffer);
       updates.imageUrl = result.secure_url;
     }
 
-    const product = await Product.findByIdAndUpdate(req.params.id, updates, { new: true });
-    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      updates,
+      { new: true }
+    );
 
-    res.json({ success: true, product });
+    res.json({ success: true, product: updatedProduct });
   } catch (error) {
     console.error("Error updating product:", error);
-    res.status(500).json({ success: false, message: "Product update failed" });
+    res
+      .status(500)
+      .json({ success: false, message: "Product update failed" });
   }
 };
 
