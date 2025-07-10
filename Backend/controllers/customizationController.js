@@ -91,23 +91,149 @@ exports.getUserCustomizations = async (req, res) => {
     }
   };
   
+  // exports.getAllCustomizations = async (req, res) => {
+  //   try {
+  //     const customizations = await Customization.find().populate("productId buyerId");
+  //     res.json({ success: true, customizations });
+  //   } catch (err) {
+  //     res.status(500).json({ success: false, message: "Server error" });
+  //   }
+  // };
+  
   exports.getAllCustomizations = async (req, res) => {
     try {
-      const customizations = await Customization.find().populate("productId buyerId");
+      const { search, status, fromDate, toDate } = req.query;
+      const match = {};
+  
+      if (status) match.status = status;
+  
+      if (fromDate || toDate) {
+        match.createdAt = {};
+        if (fromDate) match.createdAt.$gte = new Date(fromDate);
+        if (toDate) match.createdAt.$lte = new Date(toDate);
+      }
+  
+      const pipeline = [
+        { $match: match },
+        {
+          $lookup: {
+            from: "products",
+            localField: "productId",
+            foreignField: "_id",
+            as: "productId"
+          }
+        },
+        {
+          $unwind: {
+            path: "$productId",
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "buyerId",
+            foreignField: "_id",
+            as: "buyerId"
+          }
+        },
+        {
+          $unwind: {
+            path: "$buyerId",
+            preserveNullAndEmptyArrays: true
+          }
+        }
+      ];
+  
+      if (search) {
+        const regex = new RegExp(search, "i");
+        pipeline.push({
+          $match: {
+            $or: [
+              { "productId.title": regex },
+              { "productId.category": regex },
+              { "buyerId.name": regex },
+              { "buyerId.email": regex },
+              { color: regex },
+              { size: regex },
+              { additionalNotes: regex },
+              { designChangeNotes: regex },
+              { occasion: regex }
+            ]
+          }
+        });
+      }
+  
+      pipeline.push({ $sort: { createdAt: -1 } });
+  
+      const customizations = await Customization.aggregate(pipeline);
       res.json({ success: true, customizations });
+  
     } catch (err) {
+      console.error("Error fetching customizations:", err);
       res.status(500).json({ success: false, message: "Server error" });
     }
   };
   
+  
+  // exports.updateCustomizationStatus = async (req, res) => {
+  //   try {
+  //     const { error } = statusSchema.validate(req.body);
+  //     if (error) {
+  //       return res.status(400).json({ success: false, message: error.details[0].message });
+  //     }
+  
+  //     const { status, note } = req.body; // <-- ✅ Extract rejection note
+  
+  //     const customization = await Customization.findById(req.params.id);
+  //     if (!customization) {
+  //       return res.status(404).json({ success: false, message: "Customization not found" });
+  //     }
+  
+  //     customization.status = status;
+  
+  //     // ✅ Save rejection note only if status is Rejected
+  //     if (status === "Rejected") {
+  //       customization.rejectionNote = note || "";
+  //     }
+  
+  //     await customization.save();
+  
+  //     // ✅ Auto-place order if approved
+  //     if (status === "Accepted") {
+  //       const product = await Product.findById(customization.productId);
+  //       if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+  
+  //       const order = new Order({
+  //         buyerId: customization.buyerId,
+  //         productId: customization.productId,
+  //         quantity: 1,
+  //         totalAmount: product.price,
+  //         shippingAddress: "To be collected later or confirmed by user",
+  //         contactPhone: customization.phone,
+  //         customizationId: customization._id,
+  //       });
+  
+  //       await order.save();
+  //     }
+  
+  //     res.json({ success: true, message: "Customization updated", customization });
+  
+  //   } catch (error) {
+  //     console.error("Update customization error:", error);
+  //     res.status(500).json({ success: false, message: "Server error" });
+  //   }
+  // };
+  
+
   exports.updateCustomizationStatus = async (req, res) => {
     try {
-        // ✅ Validate the input
-    const { error } = statusSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ success: false, message: error.details[0].message });
-    }
-      const { status } = req.body;
+      const { error } = statusSchema.validate(req.body);
+      if (error) {
+        return res.status(400).json({ success: false, message: error.details[0].message });
+      }
+  
+      const { status, note } = req.body;
       const customization = await Customization.findById(req.params.id);
   
       if (!customization) {
@@ -115,10 +241,16 @@ exports.getUserCustomizations = async (req, res) => {
       }
   
       customization.status = status;
+      if (status === "Rejected") {
+        customization.rejectionNote = note || "";
+      } else {
+        customization.rejectionNote = ""; // clear note on status change
+      }
+  
       await customization.save();
   
-      // ✅ Auto-place order if approved
-      if (status === "approved") {
+      // Auto-create order if accepted
+      if (status === "Accepted") {
         const product = await Product.findById(customization.productId);
         if (!product) return res.status(404).json({ success: false, message: "Product not found" });
   
@@ -127,7 +259,7 @@ exports.getUserCustomizations = async (req, res) => {
           productId: customization.productId,
           quantity: 1,
           totalAmount: product.price,
-          shippingAddress: "To be collected later or confirmed by user", // placeholder
+          shippingAddress: "To be collected later or confirmed by user",
           contactPhone: customization.phone,
           customizationId: customization._id,
         });
@@ -136,12 +268,12 @@ exports.getUserCustomizations = async (req, res) => {
       }
   
       res.json({ success: true, message: "Customization updated", customization });
-  
     } catch (error) {
       console.error("Update customization error:", error);
       res.status(500).json({ success: false, message: "Server error" });
     }
   };
+  
 
   exports.deleteCustomization = async (req, res) => {
     try {

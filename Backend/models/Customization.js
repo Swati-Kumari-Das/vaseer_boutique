@@ -25,6 +25,10 @@ const customizationSchema = new mongoose.Schema({
         required: true,
     },
     status: { type: String, enum: ["Pending", "Accepted", "Rejected"], default: "Pending" },
+    rejectionNote: {
+      type: String,
+      default: "",
+    },
     createdAt: {
       type: Date,
       default: Date.now,
@@ -38,6 +42,7 @@ const customizationSchema = new mongoose.Schema({
       type: String,
       default: null,
     }
+    
       
   });
   module.exports = mongoose.model("Customization", customizationSchema);

@@ -18,7 +18,7 @@ const customizationSchema = Joi.object({
 });
 
 const statusSchema = Joi.object({
-  status: Joi.string().valid("Pending", "Accepted", "Rejected").required()
+  status: Joi.string().valid("Pending", "Accepted", "Rejected").required(),
+  note: Joi.string().allow("").optional(), // ✅ allow note (only for rejected)
 });
-
 module.exports = { customizationSchema , statusSchema};

@@ -317,6 +317,9 @@ import { Plus, Trash2, Pencil } from "lucide-react";
 import ProductFormModal from "./ProductFormModal";
 import Alert from "@/components/Alert";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+
 
 export default function AdminProductPage() {
   const [products, setProducts] = useState([]);
@@ -334,7 +337,7 @@ export default function AdminProductPage() {
   const [sortOrder, setSortOrder] = useState("desc");
 
   const token = localStorage.getItem("adminToken");
-
+  const navigate = useNavigate();
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -389,8 +392,18 @@ useEffect(() => {
 }, []);
   return (
     <div className="p-6">
+      
       <div className="flex justify-between items-center mb-4">
+      <div className="flex items-center gap-4 mb-4">
+        <button
+          onClick={() => navigate("/admin/dashboard")}
+          className="text-[#6D2932] hover:text-yellow-600 transition"
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </button>
         <h2 className="text-2xl font-bold text-[#6D2932]">Manage Products</h2>
+      </div>
+       
         <Button
           onClick={() => {
             setEditProduct(null);

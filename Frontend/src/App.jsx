@@ -9,6 +9,8 @@ import Profile from "./pages/Profile";
 import Index from "./pages/Index";
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProductPage from "./pages/admin/AdminProductPage";
+import AdminCustomizationPage from './pages/admin/AdminCustomizationPage';
+import AdminOrdersPage from "./pages/admin/AdminOrdersPage";
 function App() {
   return (
     <>
@@ -22,6 +24,8 @@ function App() {
         <Route path="/account" element={<Profile />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/products" element={<AdminProductPage />} />
+        <Route path="/admin/customizations" element={<AdminCustomizationPage />} />
+        <Route path="/admin/orders" element={<AdminOrdersPage />} />
       </Routes>
      
     </>

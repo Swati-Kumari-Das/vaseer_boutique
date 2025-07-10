@@ -27,4 +27,10 @@ export const createProduct = (formData) =>
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 
+  // 📦 Order Management
+export const getAllOrders = (page = 1) =>
+  adminAPI.get(`/orders/all?page=${page}`);
+
+export const updateOrderStatus = (orderId, newStatus) =>
+  adminAPI.put(`/orders/${orderId}/status`, { status: newStatus });
 export default adminAPI;

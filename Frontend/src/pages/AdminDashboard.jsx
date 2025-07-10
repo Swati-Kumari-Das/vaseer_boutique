@@ -150,6 +150,10 @@ import MonthlySalesChart from "../components/admin/MonthlySalesChart";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react"; // ✅ Hamburger icon
 
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -160,7 +164,7 @@ export default function AdminDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // ✅ Toggle for mobile sidebar
 
   const token = localStorage.getItem("adminToken");
-
+  const navigate = useNavigate();
   const fetchStats = async () => {
     try {
       const res = await axios.get("/api/dashboard/stats", {
@@ -252,7 +256,16 @@ export default function AdminDashboard() {
 
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-[#333]">Admin Dashboard</h1>
+          <div className="flex items-center gap-4 mb-4">
+        <button
+          onClick={() => navigate("/")}
+          className="text-[#6D2932] hover:text-yellow-600 transition"
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </button>
+        <h2 className="text-2xl font-bold text-[#6D2932]">Admin DashBoard</h2>
+      </div>
+          
             {lastUpdated && (
               <p className="text-sm text-gray-500 mt-1">
                 Last updated at: {lastUpdated}
