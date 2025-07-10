@@ -3,8 +3,8 @@
 const Joi = require("joi");
 
 const customizationSchema = Joi.object({
-  productId: Joi.string().required(),
-  size: Joi.string().allow("").optional(),
+  productId: Joi.string().optional().allow(null, ''),
+  size: Joi.string().allow("").required(),
   color: Joi.string().allow("").optional(),
   additionalNotes: Joi.string().allow("").optional(),
   contactEmail: Joi.string().email().required(),
@@ -13,7 +13,7 @@ const customizationSchema = Joi.object({
     "string.pattern.base": "Phone must be a valid 10-digit Indian number starting with 6-9",
   }),
   occasion: Joi.string()
-    .valid("Wedding", "Party", "Casual", "Festive", "Other")
+    .valid("Wedding", "Party","Engagement", "Casual", "Festive", "Other")
     .optional()
 });
 

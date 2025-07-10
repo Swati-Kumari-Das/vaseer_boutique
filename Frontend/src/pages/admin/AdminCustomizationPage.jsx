@@ -327,10 +327,33 @@ export default function AdminCustomizationPage() {
   const [editNote, setEditNote] = useState("");
   const [editId, setEditId] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
+
 
   const token = localStorage.getItem("adminToken");
   const navigate = useNavigate();
 
+  const handleDownload = async (imageUrl, fileName = "custom-design.jpg") => {
+    try {
+      const response = await fetch(imageUrl, { mode: "cors" });
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+  
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+  
+      // Optional: clean up
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed:", error);
+      alert("❌ Failed to download image.");
+    }
+  };
+  
   const fetchCustomizations = async () => {
     try {
       setLoading(true);
@@ -450,14 +473,53 @@ export default function AdminCustomizationPage() {
               key={req._id}
               className="border border-gray-200 rounded-xl p-4 shadow hover:shadow-md transition bg-white"
             >
-              <div className="mb-3 flex gap-4">
-                {req.imageUrl && (
+             <div className="mb-3 flex flex-col md:flex-row gap-4">
+                {/* {req.imageUrl && (
                   <img
                     src={req.imageUrl}
                     alt="Design Preview"
                     className="w-24 h-32 rounded-md object-cover border"
                   />
-                )}
+                )} */}
+
+                  {/* User Uploaded Image */}
+ 
+                  <div className="flex flex-wrap gap-4">
+  {/* User Uploaded Image */}
+  {req.imageUrl && (
+    <div className="flex flex-col items-start">
+      <img
+        src={req.imageUrl}
+        alt="User Uploaded Design"
+        className="w-24 h-32 rounded-md object-cover border cursor-pointer"
+        onClick={() => setPreviewImage(req.imageUrl)}
+      />
+      <p className="text-xs mt-1 font-medium text-gray-600">User Provided Image</p>
+      <button
+  onClick={() => handleDownload(req.imageUrl, "custom-image.jpg")}
+  className="mt-1 text-xs text-blue-600 underline hover:text-blue-800"
+>
+  ⬇️ Download Image
+</button>
+
+    </div>
+  )}
+
+  {/* Product Image */}
+  {req.productId?.imageUrl && (
+    <div className="flex flex-col items-start">
+      <img
+        src={req.productId.imageUrl}
+        alt="Product Image"
+        className="w-24 h-32 rounded-md object-cover border cursor-pointer"
+        onClick={() => setPreviewImage(req.productId.imageUrl)}
+      />
+      <p className="text-xs mt-1 font-medium text-gray-600">Product Image</p>
+    </div>
+  )}
+</div>
+
+              
                 <div className="flex-1 text-sm">
                   <p><span className="font-semibold">Product:</span> {req.productId?.title || "N/A"}</p>
                   <p><span className="font-semibold">Buyer:</span> {req.buyerId?.name} ({req.buyerId?.email})</p>
@@ -598,6 +660,30 @@ export default function AdminCustomizationPage() {
           </div>
         </div>
       )}
+
+{/* Fullscreen Image Preview */}
+{previewImage && (
+  <div
+    className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center"
+    onClick={() => setPreviewImage(null)}
+  >
+    <div className="relative max-w-full max-h-full p-4">
+      <button
+        onClick={() => setPreviewImage(null)}
+        className="absolute top-2 right-2 text-white text-2xl font-bold"
+      >
+       ❌
+      </button>
+      <img
+        src={previewImage}
+        alt="Preview"
+        className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-lg"
+      />
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 }

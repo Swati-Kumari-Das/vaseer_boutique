@@ -16,10 +16,11 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
     console.log("🔐 Sending token:", token);
-  }else{
-    delete config.headers.Authorization;
-    console.log("⚠️ No token found. Authorization header removed."); 
   }
+  // else{
+  //   delete config.headers.Authorization;
+  //   console.log("⚠️ No token found. Authorization header removed."); 
+  // }
   return config;
 });
 

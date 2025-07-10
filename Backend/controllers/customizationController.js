@@ -4,15 +4,18 @@ const Order = require("../models/Order");
 const Product = require("../models/Product");
 const User = require("../models/User");
 const sendEmail = require("../utils/sendEmail");
-const cloudinary = require("../utils/cloudinary");
+
 const streamifier = require("streamifier");
 const { customizationSchema,statusSchema} = require("../validators/customizationValidation");
-const { deleteFromCloudinary } = require("../utils/cloudinary");
+const { cloudinary,deleteFromCloudinary } = require("../utils/cloudinary");
 
 
 exports.createCustomization = async (req, res) => {
     try {
        // ✅ Validate input
+       console.log("📦 Incoming customization req.body:", req.body);
+console.log("🖼️ Uploaded file:", req.file);
+
     const { error } = customizationSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ success: false, message: error.details[0].message });
@@ -73,6 +76,7 @@ exports.createCustomization = async (req, res) => {
       res.status(201).json({ success: true, customization });
     } catch (error) {
       console.error("Error creating customization:", error);
+      console.error("Full error object:", error); // <-- add this for full trace
       res.status(500).json({ success: false, error: "Server error" });
     }
   };
