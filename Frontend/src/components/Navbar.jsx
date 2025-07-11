@@ -84,7 +84,11 @@ const Navbar = () => {
               Customization
             </button>
             <button
-              onClick={() => scrollToSection('categories')}
+              //onClick={() => scrollToSection('categories')}
+              onClick={() => {
+                navigate('/products');
+                setIsMenuOpen(false); // if mobile
+              }}
               className="text-gray-700 hover:text-yellow-600 transition-colors"
             >
               Products
@@ -198,7 +202,11 @@ const Navbar = () => {
                 Customization
               </button>
               <button
-                onClick={() => scrollToSection('categories')}
+                // onClick={() => scrollToSection('categories')}
+                onClick={()=>{
+                  navigate('/products');
+                  setIsMenuOpen(false); // if mobile
+                }}
                 className="block w-full text-left text-gray-700 hover:text-yellow-600 transition-colors"
               >
                 Products
