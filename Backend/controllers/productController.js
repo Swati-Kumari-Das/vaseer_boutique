@@ -83,7 +83,10 @@ exports.getAllProducts = async (req, res) => {
       const regex = new RegExp(search, "i"); // case-insensitive search
       filter.$or = [
         { title: regex },
-        { category: regex }
+        { category: regex },
+        { fabricType: regex },
+        { description: regex } 
+
       ];
     }
 
@@ -109,6 +112,15 @@ exports.getAllProducts = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+};
+ 
+exports.getFabricTypes = async (req, res) => {
+  try {
+    const fabrics = await Product.distinct("fabricType");
+    res.json({ success: true, fabrics });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to fetch fabric types" });
   }
 };
 

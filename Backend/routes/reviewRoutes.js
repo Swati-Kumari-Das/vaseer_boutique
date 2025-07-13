@@ -6,13 +6,15 @@ const {
   getReviewsByProduct,
   addBoutiqueReview,
   getBoutiqueReviews,
-  deleteReviewByAdmin
+  deleteReviewByAdmin,
+  checkCanReview
 } = require("../controllers/reviewController");
 const { verifyToken, isAdmin } = require("../middleware/auth");
 
 // Product reviews
 router.post("/products/:id/reviews", verifyToken, addProductReview);
-router.get("/products/:id/reviews", getReviewsByProduct);
+router.get("/reviews/product/:productId", getReviewsByProduct);
+router.get("/reviews/can-review/:productId", verifyToken, checkCanReview);
 
 // Boutique reviews
 router.post("/reviews/boutique", verifyToken, addBoutiqueReview);

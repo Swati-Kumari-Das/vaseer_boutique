@@ -8,7 +8,8 @@ const {
   getProductById,
   updateProduct,
   deleteProduct,
-  getProductCategories
+  getProductCategories,
+  getFabricTypes
 } = require("../controllers/productController");
 
 const { verifyToken, isAdmin } = require("../middleware/auth");
@@ -21,6 +22,8 @@ router.put("/:id", verifyToken, isAdmin, upload.single("image"), updateProduct);
 router.get("/", getAllProducts);
 router.get("/categories", getProductCategories);
 router.get("/:id", getProductById);
+router.get("/fabrics", getFabricTypes);
+
 router.delete("/:id", verifyToken, isAdmin, deleteProduct);
 
 

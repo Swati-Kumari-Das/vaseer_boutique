@@ -15,6 +15,8 @@ import ProductList from './pages/ProductList'; // Shows all products with filter
 import ProductDetail from './pages/ProductDetail'; // Single product page
 import WishlistPage from './pages/WishlistPage';
 import CustomizationForm from './pages/CustomizationForm';
+
+
 function App() {
   return (
     <>
@@ -34,6 +36,7 @@ function App() {
         <Route path="/products/:id" element={<ProductDetail />} />
         <Route path="/wishlist" element={<WishlistPage />} />
         <Route path="/customization/request" element={<CustomizationForm />} />
+
       </Routes>
      
     </>

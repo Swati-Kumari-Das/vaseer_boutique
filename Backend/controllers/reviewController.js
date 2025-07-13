@@ -46,6 +46,7 @@ exports.addProductReview = async (req, res) => {
 exports.getReviewsByProduct = async (req, res) => {
   try {
     const { page = 1, limit = 5 } = req.query;
+      const productId = req.params.productId; // updated
 
     const reviews = await Review.find({ productId: req.params.id, type: "product" })
       .populate("userId", "name")
@@ -63,6 +64,24 @@ exports.getReviewsByProduct = async (req, res) => {
       totalReviews: total,
     });
   } catch (err) {
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+};
+
+exports.checkCanReview = async (req, res) => {
+  try {
+    const productId = req.params.productId;
+    const userId = req.user.id;
+
+    const hasDeliveredOrder = await Order.findOne({
+      buyerId: userId,
+      'items.product': productId,
+      orderStatus: 'delivered',
+    });
+
+    res.json({ canReview: !!hasDeliveredOrder });
+  } catch (err) {
+    console.error("Check review permission error:", err);
     res.status(500).json({ success: false, msg: "Server error" });
   }
 };

@@ -58,6 +58,9 @@ const userRoutes = require("./routes/userRoutes");
 app.use("/api/users", userRoutes);
 require("./utils/cloudinary"); 
 
+const cartRoutes = require("./routes/cartRoutes");
+app.use("/api/user/cart", cartRoutes);
+
 
 
 app.use("/api/dashboard", require("./routes/dashboardRoutes"));
