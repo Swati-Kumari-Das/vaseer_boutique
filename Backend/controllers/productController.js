@@ -42,6 +42,7 @@ exports.createProduct = async (req, res) => {
     const product = new Product({
       title,
       category,
+      
       description,
       price,
       imageUrl,
@@ -61,6 +62,7 @@ exports.getAllProducts = async (req, res) => {
   try {
     const {
       category,
+      fabric,
       minPrice,
       maxPrice,
       page = 1,
@@ -73,6 +75,7 @@ exports.getAllProducts = async (req, res) => {
     let filter = {};
 
     if (category) filter.category = category;
+     if (fabric) filter.fabricType = fabric;  // ✅
     if (minPrice || maxPrice) {
       filter.price = {};
       if (minPrice) filter.price.$gte = Number(minPrice);

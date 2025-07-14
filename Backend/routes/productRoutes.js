@@ -21,8 +21,9 @@ router.put("/:id", verifyToken, isAdmin, upload.single("image"), updateProduct);
 
 router.get("/", getAllProducts);
 router.get("/categories", getProductCategories);
-router.get("/:id", getProductById);
 router.get("/fabrics", getFabricTypes);
+router.get("/:id", getProductById);
+
 
 router.delete("/:id", verifyToken, isAdmin, deleteProduct);
 

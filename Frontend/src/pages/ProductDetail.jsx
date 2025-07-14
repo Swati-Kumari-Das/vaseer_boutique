@@ -754,6 +754,338 @@
 // export default ProductDetail;
 
 
+// import React, { useState, useEffect } from 'react';
+// import { useParams, useNavigate } from 'react-router-dom';
+// import axios from '@/utils/axios';
+// import toast, { Toaster } from 'react-hot-toast';
+// import { ArrowLeft, Heart, ShoppingCart } from 'lucide-react';
+// import Footer from '@/components/Footer';
+// import Navbar from '@/components/Navbar';
+// import { useWishlist } from '@/context/WishlistContext';
+// import { useCart } from '@/context/CartContext';
+
+// const ProductDetail = () => {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
+
+//   const [product, setProduct] = useState(null);
+//   const [selectedSize, setSelectedSize] = useState('');
+//   const [showCustomization, setShowCustomization] = useState(false);
+//   const [reviews, setReviews] = useState([]);
+//   const [canReview, setCanReview] = useState(false);
+//   const [newReview, setNewReview] = useState({ comment: '', rating: 5 });
+//   const [isWishlisted, setIsWishlisted] = useState(false);
+//   const [page] = useState(1); // Set pagination page
+
+//   const token = localStorage.getItem('token');
+  
+//   const { fetchWishlist } = useWishlist();
+//    const { fetchCart } = useCart();
+
+//   useEffect(() => {
+//     fetchProduct();
+//     fetchReviews();
+//     checkIfUserCanReview();
+//     checkWishlistStatus();
+//   }, [id]);
+
+//   const fetchProduct = async () => {
+//     try {
+//       const res = await axios.get(`/products/${id}`);
+//       setProduct(res.data.product || res.data);
+//     } catch {
+//       toast.error("Failed to load product");
+//     }
+//   };
+
+//   const fetchReviews = async () => {
+//     try {
+//       const res = await axios.get(`/reviews/product/${id}?page=${page}&limit=5`);
+//       setReviews(res.data.reviews || []);
+//     } catch {
+//       setReviews([]);
+//     }
+//   };
+
+//   const checkIfUserCanReview = async () => {
+//     try {
+//       const res = await axios.get(`/reviews/can-review/${id}`, {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
+//       setCanReview(res.data.canReview);
+//     } catch {
+//       setCanReview(false);
+//     }
+//   };
+
+//   const checkWishlistStatus = async () => {
+//     if (!token) return;
+//     try {
+//       const res = await axios.get(`/wishlist`, {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
+//       const wishlist = res.data.wishlist || [];
+//       const wishIds = wishlist.map((item) => item._id);
+//       setIsWishlisted(wishIds.includes(id));
+//     } catch (err) {
+//       console.error("Wishlist fetch error", err);
+//     }
+//   };
+
+// const toggleWishlist = async () => {
+//   const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
+
+//   if (!token) {
+//     toast.error("Login required to manage wishlist");
+//     setTimeout(() => navigate('/auth?type=login'), 1500);
+//     return;
+//   }
+
+//   try {
+//     if (isWishlisted) {
+//       await axios.delete(`/wishlist/remove/${id}`, {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
+//       toast.success("Removed from wishlist");
+//       setIsWishlisted(false);
+//     } else {
+//       await axios.post(`/wishlist/add/${id}`, {
+//         title: product.title,
+//         image: product.image || product.imageUrl,
+//         price: product.price,
+//         category: product.category,
+//       }, {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
+//       toast.success("Added to wishlist");
+//       setIsWishlisted(true);
+//     }
+
+//     fetchWishlist(); // 💥 trigger global update
+//   } catch (err) {
+//     console.error("Wishlist update failed:", err);
+//     toast.error("Wishlist update failed");
+//   }
+// };
+
+
+
+//  const handleAddToCart = async () => {
+//   if (!token) {
+//     toast.error("Login required to add to cart");
+//     return navigate("/auth?type=login");
+//   }
+
+//   if (!selectedSize) {
+//     toast.error("Please select a size");
+//     return;
+//   }
+
+//   try {
+//     await axios.post(`/user/cart/add`, {
+//       productId: id,
+//       quantity: 1,
+//       size: selectedSize,
+//     }, {
+//       headers: { Authorization: `Bearer ${token}` },
+//     });
+
+//     toast.success("Added to cart");
+//     fetchCart(); // 💥 trigger global update
+//   } catch (err) {
+//     toast.error("Failed to add to cart");
+//   }
+// };
+
+
+
+//   const handleSubmitReview = async () => {
+//     try {
+//       await axios.post(`/reviews/product/${id}`, newReview, {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
+//       toast.success("Review submitted!");
+//       setNewReview({ comment: '', rating: 5 });
+//       fetchReviews();
+//     } catch {
+//       toast.error("Failed to submit review");
+//     }
+//   };
+
+//   if (!product) return <div className="p-8">Loading...</div>;
+
+//   return (
+//     <div className="min-h-screen pt-20 max-w-full">
+//       <Navbar />
+//       <Toaster position="top-right" />
+
+//       <div className="px-4 md:px-16 lg:px-32">
+//         <button
+//           onClick={() => navigate(-1)}
+//           className="flex items-center gap-2 text-sm text-gray-600 hover:text-yellow-600 mb-6"
+//         >
+//           <ArrowLeft className="w-4 h-4" />
+//           Go Back
+//         </button>
+
+//         <div className="flex flex-col md:flex-row gap-10">
+//           <div className="w-full md:w-[400px] flex justify-center">
+//             <div className="overflow-hidden rounded-xl shadow-lg group w-full h-[500px] max-w-[400px]">
+//               <img
+//                 src={product.imageUrl || product.image}
+//                 alt={product.title}
+//                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+//               />
+//             </div>
+//           </div>
+
+//           <div className="flex-1 space-y-4 mt-6 md:mt-0">
+//             <h1 className="text-2xl md:text-3xl font-bold">{product.title || product.name}</h1>
+//             <p className="text-gray-600">{product.category}</p>
+//               <p className="text-sm text-gray-500 ">Fabric: {product.fabricType}</p>
+
+//             <p className="text-yellow-600 font-semibold text-xl">₹{product.price}</p>
+           
+//             <p>{product.description}</p>
+//             <p className="text-sm text-gray-700">
+//               ⭐ {product.averageRating ? product.averageRating.toFixed(1) : "No rating yet"}
+//             </p>
+
+//             <select
+//               value={selectedSize}
+//               onChange={(e) => setSelectedSize(e.target.value)}
+//               className="px-3 py-2 border rounded-md"
+//             >
+//               <option value="">Select Size</option>
+//               {["XS", "S", "M", "L", "XL", "XXL"].map((size) => (
+//                 <option key={size} value={size}>{size}</option>
+//               ))}
+//             </select>
+
+//             <div className="flex flex-wrap gap-3 mt-4">
+//               <button
+//                 onClick={toggleWishlist}
+//                 className={`flex items-center gap-2 px-4 py-2 border rounded ${
+//                   isWishlisted
+//                     ? "text-red-600 border-red-600 hover:bg-red-50"
+//                     : "text-pink-600 border-pink-600 hover:bg-pink-50"
+//                 }`}
+//               >
+//                 <Heart className="w-4 h-4" />
+//                 {isWishlisted ? "Remove from Wishlist 💔" : "Add to Wishlist ❤️"}
+//               </button>
+
+//               <button
+//                 onClick={handleAddToCart}
+//                 className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+//               >
+//                 <ShoppingCart className="w-4 h-4" />
+//                 Add to Cart
+//               </button>
+
+//               {product.customizable && (
+//                 <button
+//                   onClick={() => setShowCustomization(true)}
+//                   className="px-4 py-2 border border-yellow-600 text-yellow-600 rounded hover:bg-yellow-50"
+//                 >
+//                   Customize
+//                 </button>
+//               )}
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Reviews Section */}
+//         <div className="mt-12">
+//           {reviews.length > 0 && (
+//             <>
+//               <h2 className="text-2xl font-semibold mb-4">Customer Reviews</h2>
+//               <div className="space-y-4">
+//                 {reviews.map((rev) => (
+//                   <div
+//                     key={rev._id}
+//                     className="p-4 border rounded-md shadow-sm bg-white"
+//                   >
+//                     <div className="flex flex-col sm:flex-row sm:justify-between">
+//                       <p className="text-sm font-semibold text-gray-800">
+//                         {rev.userId?.name || "User"}
+//                       </p>
+//                       <p className="text-yellow-600 text-sm">⭐ {rev.rating}</p>
+//                     </div>
+//                     <p className="mt-2 text-gray-700 text-sm">{rev.comment}</p>
+//                   </div>
+//                 ))}
+//               </div>
+//             </>
+//           )}
+
+//           {canReview && (
+//             <div className="mt-6 space-y-2">
+//               <h3 className="font-medium text-lg">Add Your Review</h3>
+//               <textarea
+//                 value={newReview.comment}
+//                 onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+//                 className="w-full border px-3 py-2 rounded-md text-sm"
+//                 placeholder="Your review"
+//                 rows={3}
+//               />
+//               <select
+//                 value={newReview.rating}
+//                 onChange={(e) => setNewReview({ ...newReview, rating: parseInt(e.target.value) })}
+//                 className="px-3 py-2 border rounded text-sm"
+//               >
+//                 {[1, 2, 3, 4, 5].map((r) => (
+//                   <option key={r} value={r}>
+//                     {r} Star{r > 1 && "s"}
+//                   </option>
+//                 ))}
+//               </select>
+//               <button
+//                 onClick={handleSubmitReview}
+//                 className="block mt-2 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm"
+//               >
+//                 Submit Review
+//               </button>
+//             </div>
+//           )}
+//         </div>
+//       </div>
+
+//       {/* Customize Modal */}
+//       {showCustomization && (
+//         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+//           <div className="bg-white rounded-md p-6 w-full max-w-md space-y-4 relative">
+//             <h2 className="text-lg font-semibold">Customization Form</h2>
+//             <input type="text" placeholder="Size" className="w-full border px-3 py-2 rounded" />
+//             <input type="text" placeholder="Color" className="w-full border px-3 py-2 rounded" />
+//             <textarea placeholder="Design notes" className="w-full border px-3 py-2 rounded" />
+//             <button
+//               onClick={() => {
+//                 toast.success("Customization submitted!");
+//                 setShowCustomization(false);
+//               }}
+//               className="bg-yellow-600 w-full py-2 text-white rounded hover:bg-yellow-700"
+//             >
+//               Submit
+//             </button>
+//             <button
+//               onClick={() => setShowCustomization(false)}
+//               className="absolute top-2 right-2 text-gray-500 hover:text-red-600"
+//             >
+//               ✕
+//             </button>
+//           </div>
+//         </div>
+//       )}
+
+//       <Footer />
+//     </div>
+//   );
+// };
+
+// export default ProductDetail;
+
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '@/utils/axios';
@@ -761,6 +1093,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import { ArrowLeft, Heart, ShoppingCart } from 'lucide-react';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
+import { useWishlist } from '@/context/WishlistContext';
+import { useCart } from '@/context/CartContext';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -772,16 +1106,21 @@ const ProductDetail = () => {
   const [reviews, setReviews] = useState([]);
   const [canReview, setCanReview] = useState(false);
   const [newReview, setNewReview] = useState({ comment: '', rating: 5 });
-  const [isWishlisted, setIsWishlisted] = useState(false);
-  const [page] = useState(1); // Set pagination page
 
-  const token = localStorage.getItem('token');
+  const [submittingReview, setSubmittingReview] = useState(false);
+
+  const page = 1;
+
+ const { wishlist, fetchWishlist } = useWishlist();
+const isWishlisted = wishlist.map(item => item._id).includes(id);
+
+  const { fetchCart } = useCart();
 
   useEffect(() => {
     fetchProduct();
     fetchReviews();
     checkIfUserCanReview();
-    checkWishlistStatus();
+
   }, [id]);
 
   const fetchProduct = async () => {
@@ -803,6 +1142,9 @@ const ProductDetail = () => {
   };
 
   const checkIfUserCanReview = async () => {
+    const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
+    if (!token) return;
+
     try {
       const res = await axios.get(`/reviews/can-review/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -813,29 +1155,28 @@ const ProductDetail = () => {
     }
   };
 
-  const checkWishlistStatus = async () => {
-    if (!token) return;
-    try {
-      const res = await axios.get(`/wishlist`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const wishlist = res.data.wishlist || [];
-      const wishIds = wishlist.map((item) => item._id);
-      setIsWishlisted(wishIds.includes(id));
-    } catch (err) {
-      console.error("Wishlist fetch error", err);
-    }
-  };
+  // const checkWishlistStatus = async () => {
+  //   const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
+  //   if (!token) return;
+
+  //   try {
+  //     const res = await axios.get(`/wishlist`, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+  //     const wishlist = res.data.wishlist || [];
+  //     const wishIds = wishlist.map((item) => item._id);
+  //     setIsWishlisted(wishIds.includes(id));
+  //   } catch (err) {
+  //     console.error("Wishlist fetch error", err);
+  //   }
+  // };
 
  const toggleWishlist = async () => {
   const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
-
   if (!token) {
     toast.error("Login required to manage wishlist");
-    setTimeout(() => {
-      navigate('/auth?type=login');
-    }, 1500);
-    return; // important: stop execution if not logged in
+    setTimeout(() => navigate('/auth?type=login'), 1500);
+    return;
   }
 
   try {
@@ -844,48 +1185,62 @@ const ProductDetail = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Removed from wishlist");
-      setIsWishlisted(false);
     } else {
-      await axios.post(
-        `/wishlist/add/${id}`,
-        {
-          title: product.title,
-          image: product.image || product.imageUrl,
-          price: product.price,
-          category: product.category,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.post(`/wishlist/add/${id}`, {
+        title: product.title,
+        image: product.image || product.imageUrl,
+        price: product.price,
+        category: product.category,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast.success("Added to wishlist");
-      setIsWishlisted(true);
     }
+
+    await fetchWishlist(); // ✅ Refresh context
   } catch (err) {
     console.error("Wishlist update failed:", err);
     toast.error("Wishlist update failed");
   }
 };
 
-
   const handleAddToCart = async () => {
-    if (!token) return toast.error("Login required to add to cart");
+    const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
+    if (!token) {
+      toast.error("Login required to add to cart");
+      return navigate("/auth?type=login");
+    }
+
+    if (!selectedSize) {
+      toast.error("Please select a size");
+      return;
+    }
+
     try {
       await axios.post(`/user/cart/add`, {
         productId: id,
-        size: selectedSize || null,
         quantity: 1,
+        size: selectedSize,
       }, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       toast.success("Added to cart");
-    } catch {
+      fetchCart();
+    } catch (err) {
       toast.error("Failed to add to cart");
     }
   };
 
   const handleSubmitReview = async () => {
+    const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
+    if (!token) {
+      toast.error("Login required to submit review");
+      return navigate("/auth?type=login");
+    }
+
     try {
+      setSubmittingReview(true);
       await axios.post(`/reviews/product/${id}`, newReview, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -894,6 +1249,8 @@ const ProductDetail = () => {
       fetchReviews();
     } catch {
       toast.error("Failed to submit review");
+    } finally {
+      setSubmittingReview(false);
     }
   };
 
@@ -927,6 +1284,7 @@ const ProductDetail = () => {
           <div className="flex-1 space-y-4 mt-6 md:mt-0">
             <h1 className="text-2xl md:text-3xl font-bold">{product.title || product.name}</h1>
             <p className="text-gray-600">{product.category}</p>
+            <p className="text-sm text-gray-500 ">Fabric: {product.fabricType}</p>
             <p className="text-yellow-600 font-semibold text-xl">₹{product.price}</p>
             <p>{product.description}</p>
             <p className="text-sm text-gray-700">
@@ -1024,9 +1382,10 @@ const ProductDetail = () => {
               </select>
               <button
                 onClick={handleSubmitReview}
-                className="block mt-2 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm"
+                disabled={submittingReview}
+                className="block mt-2 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm disabled:opacity-50"
               >
-                Submit Review
+                {submittingReview ? "Submitting..." : "Submit Review"}
               </button>
             </div>
           )}
@@ -1066,4 +1425,3 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
-

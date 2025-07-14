@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import axios from '@/utils/axios';
 import { isTokenExpired } from '@/utils/jwt';
+import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 // ✅ UPDATED: Check both adminToken and token
 function getUserRoleFromToken() {
   const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
@@ -20,8 +22,8 @@ function getUserRoleFromToken() {
 const Navbar = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [wishlistCount, setWishlistCount] = useState(0);
-  const [cartCount, setCartCount] = useState(0);
+  //const [wishlistCount, setWishlistCount] = useState(0);
+  //const [cartCount, setCartCount] = useState(0);
 
    // ✅ UPDATED: Check both tokens for initial login state
    const [isLoggedIn, setIsLoggedIn] = useState(
@@ -68,24 +70,29 @@ const Navbar = () => {
 // }, []);
  
 
-useEffect(() => {
-  const fetchWishlist = async () => {
-    try {
-      const res = await axios.get('/wishlist'); // ✅ This becomes: http://localhost:5000/api/user/wishlist
-      const wishlist = res.data.wishlist;
-      setWishlistCount(wishlist.length);
-      localStorage.setItem('wishlist', JSON.stringify(wishlist)); // optional
-    } catch (err) {
-      console.error('Error fetching wishlist', err);
-    }
-  };
+// useEffect(() => {
+//   const fetchWishlist = async () => {
+//     try {
+//       const res = await axios.get('/wishlist'); // ✅ This becomes: http://localhost:5000/api/user/wishlist
+//       const wishlist = res.data.wishlist;
+//       setWishlistCount(wishlist.length);
+//       localStorage.setItem('wishlist', JSON.stringify(wishlist)); // optional
+//     } catch (err) {
+//       console.error('Error fetching wishlist', err);
+//     }
+//   };
 
-  // Call fetch only if token exists
-  if (localStorage.getItem('token')) {
-    fetchWishlist();
-  }
-}, []);
+//   // Call fetch only if token exists
+//   if (localStorage.getItem('token')) {
+//     fetchWishlist();
+//   }
+// }, []);
 
+
+
+
+const { wishlistCount } = useWishlist();
+const { cartCount,fetchCart } = useCart();
   useEffect(() => {
     const checkLogin = () => {
       // ✅ UPDATED: Check both tokens again
@@ -98,21 +105,26 @@ useEffect(() => {
     return () => window.removeEventListener('storage', checkLogin);
   }, []);
 
-  useEffect(() => {
-  const fetchCart = async () => {
-    try {
-      const res = await axios.get('/cart');
-      const cart = res.data.cart || [];
-      setCartCount(cart.length);
-    } catch (err) {
-      console.error('Error fetching cart', err);
-    }
-  };
 
-  if (localStorage.getItem('token')) {
-    fetchCart();
-  }
-}, []);
+
+//const token = localStorage.getItem('token')
+// useEffect(() => {
+
+//   const fetchCartCount = async () => {
+//     if (!token) return;
+//     try {
+//       const res = await axios.get('/user/cart', {
+//         headers: { Authorization: `Bearer ${token}` }
+//       });
+//       const cartItems = res.data.cart || [];
+//       setCartCount(cartItems.length);
+//     } catch (err) {
+//       console.error("Cart fetch failed", err);
+//     }
+//   };
+
+//   fetchCartCount();
+// }, []);
 
 useEffect(() => {
   const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
@@ -241,7 +253,7 @@ useEffect(() => {
   
   </Button>
   <Button
-    className="text-gray-700 hover:text-yellow-600 transition-colors"
+    className="relative text-gray-700 hover:text-yellow-600 transition-colors"
     variant="ghost"
     size="sm"
      onClick={() => navigate('/cart')}
@@ -378,9 +390,15 @@ useEffect(() => {
   )}
 </Button>
 
-    <Button variant="ghost" size="sm">
-      <ShoppingBag className="h-4 w-4" />
-    </Button>
+    <Button variant="ghost" size="sm" className="relative">
+  <ShoppingBag className="h-5 w-5 text-gray-700 hover:text-yellow-600 transition-colors" />
+  {cartCount > 0 && (
+    <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+      {cartCount}
+    </span>
+  )}
+</Button>
+
   </div>
 </div>
 
