@@ -6,6 +6,7 @@ import axios from '@/utils/axios';
 import { isTokenExpired } from '@/utils/jwt';
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { Link } from 'react-router-dom';
 // ✅ UPDATED: Check both adminToken and token
 function getUserRoleFromToken() {
   const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
@@ -20,6 +21,8 @@ function getUserRoleFromToken() {
 }
 
 const Navbar = () => {
+
+
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   //const [wishlistCount, setWishlistCount] = useState(0);
@@ -150,23 +153,39 @@ useEffect(() => {
 
           <div className="hidden md:flex items-center space-x-8">
             <button
-              onClick={() => scrollToSection('hero')}
+              onClick={() =>{
+                 navigate('/');
+                 scrollToSection('hero')}}
               className="text-gray-700 hover:text-yellow-600 transition-colors"
             >
               Home
             </button>
             <button
-              onClick={() => scrollToSection('about')}
+              onClick={() => {
+                navigate('/');
+                scrollToSection('about')}}
               className="text-gray-700 hover:text-yellow-600 transition-colors"
             >
               About
             </button>
-            <button
-              onClick={() => scrollToSection('customization')}
-              className="text-gray-700 hover:text-yellow-600 transition-colors"
-            >
-              Customization
-            </button>
+              
+              {isLoggedIn && userRole === 'buyer' ? (
+  <Link
+    to="/my-customizations"
+    className="hover:text-yellow-700 font-medium transition-colors"
+  >
+    My Customizations
+  </Link>
+) : (
+  <button
+    onClick={() => scrollToSection('customization')}
+    className="text-gray-700 hover:text-yellow-600 transition-colors"
+  >
+    Customization
+  </button>
+)}
+
+
             <button
               //onClick={() => scrollToSection('categories')}
               onClick={() => {

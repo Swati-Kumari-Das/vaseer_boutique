@@ -279,37 +279,139 @@ exports.getUserCustomizations = async (req, res) => {
   };
   
 
-  exports.deleteCustomization = async (req, res) => {
-    try {
-      const customization = await Customization.findOne({
-        _id: req.params.id,
-        userId: req.user.id
-      });
+  // exports.deleteCustomization = async (req, res) => {
+  //   try {
+  //     const customization = await Customization.findOne({
+  //       _id: req.params.id,
+  //       userId: req.user.id
+  //     });
   
-      if (!customization) {
-        return res.status(404).json({ success: false, msg: "Customization not found or not yours" });
-      }
-      // ✅ Delete image if present
-     if (customization.imageUrl) {
-       await deleteFromCloudinary(customization.imageUrl);
-      } 
+  //     if (!customization) {
+  //       return res.status(404).json({ success: false, msg: "Customization not found or not yours" });
+  //     }
+  //     // ✅ Delete image if present
+  //    if (customization.imageUrl) {
+  //      await deleteFromCloudinary(customization.imageUrl);
+  //     } 
 
-      const user = await User.findById(req.user.id);
-      if (!user) return res.status(404).json({ success: false, msg: "User not found" });
+  //     const user = await User.findById(req.user.id);
+  //     if (!user) return res.status(404).json({ success: false, msg: "User not found" });
   
-      await customization.deleteOne();
+  //     await customization.deleteOne();
   
-      await sendEmail({
-        to: user.email,
-        subject: "Customization Request Cancelled",
-        text: `Dear ${user.name},\n\nYour customization request (ID: ${customization._id}) has been cancelled. Unfortunately, it cannot be customized.\n\nRegards,\nVaseer Boutique`
-      });
+  //     await sendEmail({
+  //       to: user.email,
+  //       subject: "Customization Request Cancelled",
+  //       text: `Dear ${user.name},\n\nYour customization request (ID: ${customization._id}) has been cancelled. Unfortunately, it cannot be customized.\n\nRegards,\nVaseer Boutique`
+  //     });
       
   
-      res.json({ success: true, msg: "Customization deleted and email sent" });
-    } catch (err) {
-      console.error("Error cancelling customization:", err);
-      res.status(500).json({ success: false, msg: "Server error" });
-    }
-  };
+  //     res.json({ success: true, msg: "Customization deleted and email sent" });
+  //   } catch (err) {
+  //     console.error("Error cancelling customization:", err);
+  //     res.status(500).json({ success: false, msg: "Server error" });
+  //   }
+  // };
   
+//   exports.deleteCustomization = async (req, res) => {
+//   try {
+//     const customization = await Customization.findOne({
+//       _id: req.params.id,
+//       buyerId: req.user.id   // ✅ fixed from "userId"
+//     });
+
+//     if (!customization) {
+//       return res.status(404).json({ success: false, msg: "Customization not found or not yours" });
+//     }
+
+//     // ✅ Delete image if present
+//     if (customization.imageUrl) {
+//       await deleteFromCloudinary(customization.imageUrl);
+//     }
+
+//     const user = await User.findById(req.user.id);
+//     if (!user) return res.status(404).json({ success: false, msg: "User not found" });
+
+//     await customization.deleteOne();
+
+//     await sendEmail({
+//       to: user.email,
+//       subject: "Customization Request Cancelled",
+//       text: `Dear ${user.name},\n\nYour customization request (ID: ${customization._id}) has been cancelled.\n\nRegards,\nVaseer Boutique`
+//     });
+
+//     res.json({ success: true, msg: "Customization deleted and email sent" });
+
+//   } catch (err) {
+//     console.error("Error cancelling customization:", err);
+//     res.status(500).json({ success: false, msg: "Server error" });
+//   }
+// };
+
+
+exports.deleteCustomization = async (req, res) => {
+  try {
+    // ✅ Find customization with buyer match
+    const customization = await Customization.findOne({
+      _id: req.params.id,
+      buyerId: req.user.id
+    });
+
+    if (!customization) {
+      return res.status(404).json({ success: false, msg: "Customization not found or not yours" });
+    }
+
+    // ✅ Delete image from Cloudinary
+    if (customization.imageUrl) {
+      await deleteFromCloudinary(customization.imageUrl);
+    }
+
+    // ✅ Fetch user (buyer)
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
+
+    // ✅ Get product info (optional)
+    let product = null;
+    if (customization.productId) {
+      product = await Product.findById(customization.productId);
+    }
+
+    // ✅ Delete customization from DB
+    await customization.deleteOne();
+
+    // ✅ Send Email to Boutique (Admin)
+    await sendEmail({
+      to: process.env.ADMIN_EMAIL,
+      subject: `❌ Customization Cancelled by Buyer`,
+      text: `
+Hello Vaseer Boutique,
+
+A customization request has been cancelled by the buyer.
+
+👤 Buyer: ${user.name} (${user.email})
+🪡 Customization ID: ${customization._id}
+📦 Product: ${product ? product.title : "Its General Customization Request!!"}
+
+You may ignore or archive this request.
+
+Regards,
+Vaseer Boutique System
+      `.trim()
+    });
+
+    // ✅ Optionally notify the buyer
+    await sendEmail({
+      to: user.email,
+      subject: "🧵 You Have Cancelled Your Customization Request...",
+      text: `Dear ${user.name},\n\nYour customization request (ID: ${customization._id}) has been successfully cancelled.\n\nRegards,\nVaseer Boutique`
+    });
+
+    res.json({ success: true, msg: "Customization deleted and email sent" });
+
+  } catch (err) {
+    console.error("Error cancelling customization:", err);
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+};

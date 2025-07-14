@@ -16,6 +16,7 @@ import ProductDetail from './pages/ProductDetail'; // Single product page
 import WishlistPage from './pages/WishlistPage';
 import CustomizationForm from './pages/CustomizationForm';
 import CartPage from './pages/CartPage';
+import MyCustomizations from './pages/MyCustomizations';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
         <Route path="/products/:id" element={<ProductDetail />} />
         <Route path="/wishlist" element={<WishlistPage />} />
         <Route path="/customization/request" element={<CustomizationForm />} />
+         <Route path="/my-customizations" element={<MyCustomizations />} />
         <Route path="/cart" element={<CartPage />} />
 
 

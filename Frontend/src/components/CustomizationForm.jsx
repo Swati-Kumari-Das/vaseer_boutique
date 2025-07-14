@@ -265,9 +265,18 @@ import { Upload, Send } from 'lucide-react';
 import api from '@/utils/api';
 import Alert from '@/components/Alert';
 
-const CustomizationForm = () => {
+// const CustomizationForm = () => {
+//   const { search } = useLocation();
+//   const productId = new URLSearchParams(search).get('productId');
+
+const CustomizationForm = ({ productId: propProductId = null, onClose }) => {
   const { search } = useLocation();
-  const productId = new URLSearchParams(search).get('productId');
+
+  // Fallback to URL query param (if needed, e.g. for Home page use via URL):
+  const urlProductId = new URLSearchParams(search).get('productId');
+
+  // Final productId to use
+  const productId = propProductId || urlProductId || null;
 
   const [formData, setFormData] = useState({
     size: '',
