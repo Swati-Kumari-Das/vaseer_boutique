@@ -190,12 +190,15 @@ const MyCustomizations = () => {
       )}
 
       <div className="text-center mt-10">
-        <Button
-          onClick={() => navigate('/#customization')}
-          className="bg-[#6D2932] hover:bg-[#5a232a] text-white"
-        >
-          Want to Customize More?
-        </Button>
+            <Button
+  onClick={() => navigate('/', {
+    state: { scrollTo: 'customization-form' }
+  })}
+  className="bg-[#6D2932] hover:bg-[#5a232a] text-white"
+>
+  Want to Customize More?
+</Button>
+
       </div>
 
       {/* Custom delete confirmation */}

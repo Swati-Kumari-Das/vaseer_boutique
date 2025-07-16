@@ -17,6 +17,8 @@ import WishlistPage from './pages/WishlistPage';
 import CustomizationForm from './pages/CustomizationForm';
 import CartPage from './pages/CartPage';
 import MyCustomizations from './pages/MyCustomizations';
+import PaymentPage from './pages/PaymentPage';
+import OrderConfirmation from './pages/OrderConfirmation';
 
 function App() {
   return (
@@ -39,7 +41,8 @@ function App() {
         <Route path="/customization/request" element={<CustomizationForm />} />
          <Route path="/my-customizations" element={<MyCustomizations />} />
         <Route path="/cart" element={<CartPage />} />
-
+        <Route path="/payment" element={<PaymentPage />} />
+  <Route path="/order-confirmation" element={<OrderConfirmation />} />
 
       </Routes>
      

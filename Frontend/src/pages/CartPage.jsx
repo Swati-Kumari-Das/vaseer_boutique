@@ -138,9 +138,11 @@ import toast, { Toaster } from "react-hot-toast";
 import { Trash2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/context/CartContext"; // ✅ Import CartContext
-
+import PlaceOrderDialog from "@/components/PlaceOrderDialog";
 const CartPage = () => {
   const [cartItems, setCartItems] = useState([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const token = localStorage.getItem("token");
 
   const { fetchCart } = useCart(); // ✅ Use global fetchCart to update cart count
@@ -264,9 +266,20 @@ const CartPage = () => {
               <span>₹{total}</span>
             </div>
           </div>
-          <button className="w-full mt-4 bg-[#6D2932] text-white py-2 rounded-md hover:bg-[#572026] transition">
+          {/* <button className="w-full mt-4 bg-[#6D2932] text-white py-2 rounded-md hover:bg-[#572026] transition">
             PLACE ORDER
-          </button>
+          </button> */}
+          <PlaceOrderDialog
+  isOpen={isDialogOpen}
+  onClose={() => setIsDialogOpen(false)}
+  cartItems={cartItems}
+/>
+          <button
+           onClick={() => setIsDialogOpen(true)}
+           className="w-full mt-4 bg-[#6D2932] text-white py-2 rounded-md hover:bg-[#572026] transition"
+         >
+           PLACE ORDER
+         </button>
         </div>
       </div>
     </div>

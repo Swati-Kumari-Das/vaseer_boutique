@@ -67,6 +67,7 @@ app.use("/api/dashboard", require("./routes/dashboardRoutes"));
 const wishlistRoutes = require("./routes/wishlistRoutes");
 app.use("/api/wishlist", wishlistRoutes);
 
+app.use("/api/address", require("./routes/addressRoutes"));
 
 
 app.get("/", (req, res) => res.send("API is running"));
