@@ -13,10 +13,24 @@ app.use(cors());
 app.use(express.json());
 
 connectDB();
+
+const allowedOrigins = process.env.CLIENT_ORIGIN?.split(",");
+
 app.use(cors({
-    origin: "http://localhost:5173", // allow Vite frontend
-    credentials: true, // if using cookies in the future
-  }));
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
+
+// app.use(cors({
+//     origin: "http://localhost:5173", // allow Vite frontend
+//     credentials: true, // if using cookies in the future
+//   }));
 app.use("/api/auth", require("./routes/authRoutes"));
 // (Other routes will be added later)
 //app.use("/api/products", require("./routes/productRoutes"));
