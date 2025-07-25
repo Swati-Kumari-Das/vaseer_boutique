@@ -100,7 +100,7 @@
 
 
 import { useState } from "react";
-import axios from "axios";
+import adminAPI from "@/utils/adminAPI";
 import { X } from "lucide-react";
 import Alert from "@/components/Alert"; // using your existing Alert
 
@@ -162,11 +162,11 @@ export default function ProductFormModal({ onClose, onSuccess, initialData }) {
       if (image) formData.append("image", image);
 
       const url = initialData
-        ? `/api/products/${initialData._id}`
-        : "/api/products/add";
+        ? `/products/${initialData._id}`
+        : "/products/add";
       const method = initialData ? "put" : "post";
 
-      const response = await axios[method](url, formData, {
+      const response = await adminAPI[method](url, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
