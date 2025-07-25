@@ -366,6 +366,8 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import api from '@/utils/api';
+
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '@/components/Footer';
@@ -390,8 +392,8 @@ const wishlistIds = wishlist.map((item) => item._id);
   const fetchFilters = async () => {
     try {
       const [catRes, fabRes] = await Promise.all([
-        axios.get('/api/products/categories'),
-        axios.get('/api/products/fabrics'),
+        api.get('/products/categories'),
+        api.get('/products/fabrics'),
       ]);
       setCategories(catRes.data.categories || []);
       setFabrics(fabRes.data.fabrics || []);
@@ -412,7 +414,7 @@ const wishlistIds = wishlist.map((item) => item._id);
         sortOrder = order;
       }
 
-      const res = await axios.get('/api/products', {
+      const res = await api.get('/products', {
         params: {
           search: searchTerm,
           category,
