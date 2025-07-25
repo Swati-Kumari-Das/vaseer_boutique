@@ -12,7 +12,7 @@ export const WishlistProvider = ({ children }) => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const res = await axios.get("/wishlist", {
+      const res = await axios.get("/api/wishlist", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setWishlist(res.data.wishlist || []);
@@ -32,11 +32,11 @@ export const WishlistProvider = ({ children }) => {
       if (!token) return;
 
       if (isWishlisted) {
-        await axios.delete(`/wishlist/remove/${productId}`, {
+        await axios.delete(`/wishlist/${productId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } else {
-        await axios.post(`/wishlist/add/${productId}`, {}, {
+        await axios.post(`/wishlist/${productId}`, {}, {
           headers: { Authorization: `Bearer ${token}` },
         });
       }
