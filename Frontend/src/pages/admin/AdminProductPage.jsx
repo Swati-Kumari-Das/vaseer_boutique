@@ -311,7 +311,8 @@
 // }
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+import adminAPI from "@/utils/adminAPI"; // ✅ Add this line
+
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Pencil } from "lucide-react";
 import ProductFormModal from "./ProductFormModal";
@@ -349,7 +350,7 @@ export default function AdminProductPage() {
         order: sortOrder,
       };
 
-      const res = await axios.get("/api/products", {
+      const res = await adminAPI.get("/products", {
         headers: { Authorization: `Bearer ${token}` },
         params,
       });
@@ -365,7 +366,7 @@ export default function AdminProductPage() {
   
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/api/products/${id}`, {
+      await adminAPI.delete(`/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSuccessMsg("✅ Product deleted successfully.");
@@ -382,7 +383,7 @@ export default function AdminProductPage() {
 useEffect(() => {
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("/api/products/categories");
+      const res = await adminAPI.get("/products/categories");
       setCategories(res.data.categories || []);
     } catch (err) {
       console.error("Failed to fetch categories:", err.message);

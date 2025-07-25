@@ -312,6 +312,7 @@ import { Button } from "@/components/ui/button";
 import Alert from "@/components/Alert";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import adminAPI from "@/utils/adminAPI";
 
 export default function AdminCustomizationPage() {
   const [customizations, setCustomizations] = useState([]);
@@ -357,7 +358,7 @@ export default function AdminCustomizationPage() {
   const fetchCustomizations = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/customizations/admin/all", {
+      const res = await adminAPI.get("/customizations/admin/all", {
         headers: { Authorization: `Bearer ${token}` },
         params: { search, status: statusFilter, fromDate, toDate },
       });
@@ -380,8 +381,8 @@ export default function AdminCustomizationPage() {
 
   const updateStatus = async (id, status, note = "") => {
     try {
-      await axios.put(
-        `/api/customizations/${id}`,
+      await adminAPI.put(
+        `/customizations/${id}`,
         { status, note },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -638,7 +639,7 @@ export default function AdminCustomizationPage() {
                     return;
                   }
                   try {
-                    await axios.put(`/api/customizations/${editId}`, {
+                    await adminAPI.put(`/customizations/${editId}`, {
                       status: "Rejected",
                       note: editNote.trim()
                     }, {
