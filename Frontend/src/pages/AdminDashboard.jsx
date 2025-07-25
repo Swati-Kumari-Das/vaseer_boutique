@@ -149,6 +149,7 @@ import StatCard from "../components/admin/StatCard";
 import MonthlySalesChart from "../components/admin/MonthlySalesChart";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react"; // ✅ Hamburger icon
+import { getDashboardStats, getMonthlySales } from "@/api/adminAPI";
 
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -167,9 +168,8 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const fetchStats = async () => {
     try {
-      const res = await axios.get("/api/dashboard/stats", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await getDashboardStats();
+
       if (res.data.success) {
         setStats(res.data.stats);
         setLastUpdated(new Date().toLocaleTimeString());
@@ -185,9 +185,8 @@ export default function AdminDashboard() {
 
   const fetchMonthlySales = async () => {
     try {
-      const res = await axios.get("/api/dashboard/monthly-sales", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await getMonthlySales();
+
       if (res.data.success) {
         setMonthlySales(res.data.monthlyData);
         setError("");
