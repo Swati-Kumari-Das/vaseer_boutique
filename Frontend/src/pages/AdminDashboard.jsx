@@ -149,8 +149,8 @@ import StatCard from "../components/admin/StatCard";
 import MonthlySalesChart from "../components/admin/MonthlySalesChart";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react"; // ✅ Hamburger icon
-import { getDashboardStats, getMonthlySales } from "@/api/adminAPI";
 
+import { getDashboardStats,getMonthlySales } from "@/utils/adminAPI";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
