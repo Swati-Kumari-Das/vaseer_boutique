@@ -16,16 +16,13 @@ const { verifyToken, isAdmin } = require("../middleware/auth");
 
 
 // ⬇️ Use upload.single("image")
-router.post("/add", verifyToken, isAdmin, upload.single("image"), createProduct);
-router.put("/:id", verifyToken, isAdmin, upload.single("image"), updateProduct);
-
-router.get("/", getAllProducts);
 router.get("/categories", getProductCategories);
 router.get("/fabrics", getFabricTypes);
+router.get("/", getAllProducts);
 router.get("/:id", getProductById);
 
-
+router.post("/add", verifyToken, isAdmin, upload.single("image"), createProduct);
+router.put("/:id", verifyToken, isAdmin, upload.single("image"), updateProduct);
 router.delete("/:id", verifyToken, isAdmin, deleteProduct);
-
 
 module.exports = router;
