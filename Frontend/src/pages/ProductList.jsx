@@ -372,6 +372,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import api from '@/utils/api';
+import { useSearchParams } from 'react-router-dom';
 
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -382,6 +383,9 @@ import { useWishlist } from "@/context/WishlistContext";
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchParams] = useSearchParams();
+const initialCategory = searchParams.get('category') || '';
+  
   const [category, setCategory] = useState('');
   const [fabric, setFabric] = useState('');
   const [sortBy, setSortBy] = useState('');
