@@ -1,8 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
 
 const CategoriesSection = () => {
+
+    const navigate = useNavigate();
+
   const categories = [
     {
       name: "Sarees",
@@ -57,6 +61,11 @@ const CategoriesSection = () => {
     }
   };
 
+   const handleCategoryClick = (categoryName) => {
+    navigate(`/products?category=${encodeURIComponent(categoryName)}`);
+  };
+
+
   return (
     <section id="categories" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-6">
@@ -83,7 +92,9 @@ const CategoriesSection = () => {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           {categories.map((category, index) => (
-            <motion.div key={index} variants={itemVariants}>
+            <motion.div key={index} variants={itemVariants}
+             onClick={() => handleCategoryClick(category.name)}
+              className="cursor-pointer">
               <Card className="group cursor-pointer overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
                 <div className="relative h-80 overflow-hidden">
                   <img
