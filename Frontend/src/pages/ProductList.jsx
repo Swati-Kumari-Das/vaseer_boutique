@@ -383,8 +383,9 @@ import { useWishlist } from "@/context/WishlistContext";
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchParams] = useSearchParams();
-const initialCategory = searchParams.get('category') || '';
+   const [searchParams] = useSearchParams();
+   const initialCategory = searchParams.get('category') || '';
+
   
   const [category, setCategory] = useState('');
   const [fabric, setFabric] = useState('');
@@ -394,8 +395,15 @@ const initialCategory = searchParams.get('category') || '';
   //const [wishlistIds, setWishlistIds] = useState([]);
   
   const { wishlist, refreshWishlist } = useWishlist();
-const wishlistIds = wishlist.map((item) => item._id);
+  const wishlistIds = wishlist.map((item) => item._id);
   const navigate = useNavigate();
+
+
+  useEffect(() => {
+  if (categories.length > 0 && initialCategory && categories.includes(initialCategory)) {
+    setCategory(initialCategory);
+  }
+}, [categories, initialCategory]);
 
   // Fetch available categories and fabrics
   const fetchFilters = async () => {
