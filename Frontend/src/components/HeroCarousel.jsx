@@ -2,10 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
-
+import { useNavigate } from "react-router-dom";
 const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+    const navigate = useNavigate();
 
+  const handleClick = () => {
+    // Add any logic here before navigating
+    navigate("/products");
+  };
   const slides = [
     {
       image: "/images/img5.jpg",
@@ -83,6 +88,7 @@ const HeroCarousel = () => {
             {slides[currentSlide].description}
           </p>
           <Button 
+           onClick={handleClick}
             size="lg" 
             className="bg-yellow-600 hover:bg-yellow-700 text-black px-8 py-3 text-lg font-medium transition-all duration-300 hover:scale-105"
           >
