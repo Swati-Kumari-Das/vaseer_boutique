@@ -1651,7 +1651,7 @@ const ProductDetail = () => {
 
             {/* Quantity Selector */}
             <div className="flex items-center gap-3 mt-2">
-              <label className="text-sm font-medium">Quantity:</label>
+             
               <div className="flex items-center border px-2 rounded-md">
                 <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-2 text-lg">-</button>
                 <span className="px-3">{quantity}</span>
@@ -1693,75 +1693,35 @@ const ProductDetail = () => {
         </div>
 
         {/* 📝 Reviews */}
-        <div className="mt-12 space-y-6">
-          <h2 className="text-2xl font-semibold mb-2">Customer Reviews</h2>
-          {reviews.length > 0 ? (
-            reviews.map((rev) => (
-              <div key={rev._id} className="border-b pb-4 space-y-2">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <p className="font-semibold text-gray-800">{rev.userId?.name || "User"}</p>
-                    <span className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
-                      {rev.rating.toFixed(1)} <Star className="w-3 h-3 fill-white" />
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-400">Posted on {moment(rev.createdAt).format('D MMM YYYY')}</p>
-                </div>
-                <p className="text-gray-700 text-sm">{rev.comment}</p>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No reviews yet.</p>
-          )}
-
-          {/* ➕ Add Review */}
-          {canReview && (
-            <div className="mt-4">
-              {!showReviewForm ? (
-                <button
-                  onClick={() => setShowReviewForm(true)}
-                  className="text-sm text-yellow-600 hover:underline"
-                >
-                  + Add Review
-                </button>
-              ) : (
-                <div className="space-y-2">
-                  <textarea
-                    value={newReview.comment}
-                    onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                    className="w-full border px-3 py-2 rounded-md text-sm"
-                    placeholder="Write your review"
-                    rows={3}
-                  />
-                  <select
-                    value={newReview.rating}
-                    onChange={(e) => setNewReview({ ...newReview, rating: parseInt(e.target.value) })}
-                    className="px-3 py-2 border rounded text-sm"
-                  >
-                    {[1, 2, 3, 4, 5].map((r) => (
-                      <option key={r} value={r}>{r} Star{r > 1 && 's'}</option>
-                    ))}
-                  </select>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={handleSubmitReview}
-                      disabled={submittingReview}
-                      className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm disabled:opacity-50"
-                    >
-                      {submittingReview ? "Submitting..." : "Submit Review"}
-                    </button>
-                    <button
-                      onClick={() => setShowReviewForm(false)}
-                      className="text-sm text-gray-500 hover:underline"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
+        {/* 📝 Reviews */}
+<div className="mt-12 space-y-6">
+  {reviews.length > 0 ? (
+    <>
+      <h2 className="text-2xl font-semibold mb-2">Customer Reviews</h2>
+      {reviews.map((rev) => (
+        <div key={rev._id} className="border-b pb-4 space-y-2">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <p className="font-semibold text-gray-800">
+                {rev.userId?.name || "User"}
+              </p>
+              <span className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
+                {rev.rating.toFixed(1)} <Star className="w-3 h-3 fill-white" />
+              </span>
             </div>
-          )}
+            <p className="text-xs text-gray-400">
+              Posted on {moment(rev.createdAt).format("D MMM YYYY")}
+            </p>
+          </div>
+          <p className="text-gray-700 text-sm">{rev.comment}</p>
         </div>
+      ))}
+    </>
+  ) : null}
+</div>
+
+
+
       </div>
 
       {/* Customization Modal */}
