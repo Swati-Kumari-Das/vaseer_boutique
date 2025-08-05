@@ -387,7 +387,7 @@ const ProductList = () => {
    const initialCategory = searchParams.get('category') || '';
 
   
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState(initialCategory);
   const [fabric, setFabric] = useState('');
   const [sortBy, setSortBy] = useState('');
   const [categories, setCategories] = useState([]);
@@ -399,11 +399,6 @@ const ProductList = () => {
   const navigate = useNavigate();
 
 
-useEffect(() => {
-  if (initialCategory) {
-    setCategory(initialCategory);
-  }
-}, [initialCategory]);
 
   // Fetch available categories and fabrics
   const fetchFilters = async () => {
