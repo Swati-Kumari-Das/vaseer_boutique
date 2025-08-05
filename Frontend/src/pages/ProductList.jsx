@@ -399,11 +399,11 @@ const ProductList = () => {
   const navigate = useNavigate();
 
 
-  useEffect(() => {
-  if (categories.length > 0 && initialCategory && categories.includes(initialCategory)) {
+useEffect(() => {
+  if (initialCategory) {
     setCategory(initialCategory);
   }
-}, [categories, initialCategory]);
+}, [initialCategory]);
 
   // Fetch available categories and fabrics
   const fetchFilters = async () => {
