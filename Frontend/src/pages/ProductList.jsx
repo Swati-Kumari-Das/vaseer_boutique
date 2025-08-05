@@ -364,11 +364,204 @@
 // export default ProductList;
 
 
+
+
+
+
+
+// import React, { useState, useEffect } from 'react';
+// import axios from 'axios';
+// import api from '@/utils/api';
+
+// import { useNavigate } from 'react-router-dom';
+// import Navbar from '../components/Navbar';
+// import Footer from '@/components/Footer';
+// import ProductCard from '../components/ProductCard';
+// import { useWishlist } from "@/context/WishlistContext";
+
+// const ProductList = () => {
+//   const [products, setProducts] = useState([]);
+//   const [searchTerm, setSearchTerm] = useState('');
+//   const [category, setCategory] = useState('');
+//   const [fabric, setFabric] = useState('');
+//   const [sortBy, setSortBy] = useState('');
+//   const [categories, setCategories] = useState([]);
+//   const [fabrics, setFabrics] = useState([]);
+//   //const [wishlistIds, setWishlistIds] = useState([]);
+  
+//   const { wishlist, refreshWishlist } = useWishlist();
+// const wishlistIds = wishlist.map((item) => item._id);
+//   const navigate = useNavigate();
+
+//   // Fetch available categories and fabrics
+//   const fetchFilters = async () => {
+//     try {
+//       const [catRes, fabRes] = await Promise.all([
+//         api.get('/products/categories'),
+//         api.get('/products/fabrics'),
+//       ]);
+//       setCategories(catRes.data.categories || []);
+//       setFabrics(fabRes.data.fabrics || []);
+//     } catch (err) {
+//       console.error('Error fetching filters:', err);
+//     }
+//   };
+
+//   // Fetch filtered products
+//   const fetchProducts = async () => {
+//     try {
+//       let sortField = 'createdAt';
+//       let sortOrder = 'desc';
+
+//       if (sortBy) {
+//         const [field, order] = sortBy.split('_');
+//         sortField = field;
+//         sortOrder = order;
+//       }
+
+//       const res = await api.get('/products', {
+//         params: {
+//           search: searchTerm,
+//           category,
+//           fabric,
+//           sortBy: sortField,
+//           order: sortOrder,
+//         },
+//       });
+
+//       setProducts(res.data.products || []);
+//     } catch (err) {
+//       console.error('Error fetching products:', err);
+//     }
+//   };
+
+//   // Fetch filters once
+//   useEffect(() => {
+//     fetchFilters();
+//   }, []);
+
+//   // Load wishlist ONCE
+// // const fetchWishlist = async () => {
+// //   try {
+// //     const token = localStorage.getItem("token");
+// //     if (!token) return;
+
+// //     const res = await axios.get("/api/wishlist", {
+// //       headers: { Authorization: `Bearer ${token}` },
+// //     });
+// //     const ids = res.data.wishlist.map((item) => item._id);
+// //     setWishlistIds(ids);
+// //   } catch (err) {
+// //     console.error("Failed to fetch wishlist");
+// //   }
+// // };
+
+// // useEffect(() => {
+// //   fetchWishlist();
+// // }, []);
+
+//   // Fetch products on filters change
+//   useEffect(() => {
+//     const delay = setTimeout(() => {
+//       fetchProducts();
+//     }, 300);
+
+//     return () => clearTimeout(delay);
+//   }, [searchTerm, category, fabric, sortBy]);
+
+//   return (
+//     <div className="min-h-screen bg-white pt-20">
+//       <Navbar />
+
+//       {/* Filters */}
+//       <div className="px-6 py-4 border-b flex flex-wrap gap-4 justify-between items-center">
+//         <input
+//           type="text"
+//           placeholder="Search by title, category, fabric..."
+//           value={searchTerm}
+//           onChange={(e) => setSearchTerm(e.target.value)}
+//           className="flex-1 min-w-[180px] px-4 py-2 border rounded-md shadow-sm text-sm"
+//         />
+
+//         <select
+//           className="px-4 py-2 border rounded-md text-sm"
+//           value={category}
+//           onChange={(e) => setCategory(e.target.value)}
+//         >
+//           <option value="">All Categories</option>
+//           {categories.map((cat) => (
+//             <option key={cat} value={cat}>
+//               {cat}
+//             </option>
+//           ))}
+//         </select>
+
+//         <select
+//           className="px-4 py-2 border rounded-md text-sm"
+//           value={fabric}
+//           onChange={(e) => setFabric(e.target.value)}
+//         >
+//           <option value="">All Fabrics</option>
+//           {fabrics.map((fab) => (
+//             <option key={fab} value={fab}>
+//               {fab}
+//             </option>
+//           ))}
+//         </select>
+
+//         <select
+//           className="px-4 py-2 border rounded-md text-sm"
+//           value={sortBy}
+//           onChange={(e) => setSortBy(e.target.value)}
+//         >
+//           <option value="">Sort By</option>
+//           <option value="price_asc">Price: Low to High</option>
+//           <option value="price_desc">Price: High to Low</option>
+//           <option value="rating_desc">Top Rated</option>
+//           <option value="createdAt_desc">Newest</option>
+//         </select>
+//       </div>
+
+//       {/* Product Grid */}
+//       <main className="p-6">
+//         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+//           {products.length > 0 ? (
+//             products.map((product) => (
+//               <div
+//                 key={product._id}
+//                 onClick={() => navigate(`/products/${product._id}`)}
+//                 className="cursor-pointer"
+//               >
+//                 {/* <ProductCard product={product} /> */}
+//                 <ProductCard
+//                 product={product}
+//                 isWishlisted={wishlistIds.includes(product._id)}
+//                 onWishlistChange={refreshWishlist} // trigger re-fetch on change
+//                  />
+
+//               </div>
+//             ))
+//           ) : (
+//             <p className="text-center text-gray-600 col-span-full">No products found.</p>
+//           )}
+//         </div>
+//       </main>
+
+//       <Footer />
+//     </div>
+//   );
+// };
+
+// export default ProductList;
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import api from '@/utils/api';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard from '../components/ProductCard';
@@ -382,11 +575,20 @@ const ProductList = () => {
   const [sortBy, setSortBy] = useState('');
   const [categories, setCategories] = useState([]);
   const [fabrics, setFabrics] = useState([]);
-  //const [wishlistIds, setWishlistIds] = useState([]);
-  
+
   const { wishlist, refreshWishlist } = useWishlist();
-const wishlistIds = wishlist.map((item) => item._id);
+  const wishlistIds = wishlist.map((item) => item._id);
   const navigate = useNavigate();
+
+  const [searchParams] = useSearchParams();
+
+  // ✅ Sync category from URL on first load
+  useEffect(() => {
+    const urlCategory = searchParams.get("category");
+    if (urlCategory) {
+      setCategory(urlCategory);
+    }
+  }, [searchParams]);
 
   // Fetch available categories and fabrics
   const fetchFilters = async () => {
@@ -434,26 +636,6 @@ const wishlistIds = wishlist.map((item) => item._id);
   useEffect(() => {
     fetchFilters();
   }, []);
-
-  // Load wishlist ONCE
-// const fetchWishlist = async () => {
-//   try {
-//     const token = localStorage.getItem("token");
-//     if (!token) return;
-
-//     const res = await axios.get("/api/wishlist", {
-//       headers: { Authorization: `Bearer ${token}` },
-//     });
-//     const ids = res.data.wishlist.map((item) => item._id);
-//     setWishlistIds(ids);
-//   } catch (err) {
-//     console.error("Failed to fetch wishlist");
-//   }
-// };
-
-// useEffect(() => {
-//   fetchWishlist();
-// }, []);
 
   // Fetch products on filters change
   useEffect(() => {
@@ -527,13 +709,11 @@ const wishlistIds = wishlist.map((item) => item._id);
                 onClick={() => navigate(`/products/${product._id}`)}
                 className="cursor-pointer"
               >
-                {/* <ProductCard product={product} /> */}
                 <ProductCard
-                product={product}
-                isWishlisted={wishlistIds.includes(product._id)}
-                onWishlistChange={refreshWishlist} // trigger re-fetch on change
-                 />
-
+                  product={product}
+                  isWishlisted={wishlistIds.includes(product._id)}
+                  onWishlistChange={refreshWishlist}
+                />
               </div>
             ))
           ) : (
